@@ -5,5 +5,5 @@ bin/
 *.csv
 *.txt
 *.dat
-primos.txt
-primos_*.csv
+!results/*.txt
+!results/*.dat
