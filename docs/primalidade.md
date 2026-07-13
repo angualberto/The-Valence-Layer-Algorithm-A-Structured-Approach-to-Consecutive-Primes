@@ -1,71 +1,103 @@
-# Verificação de Primalidade no Algoritmo da Camada de Valencia
+# Verificação de Primalidade — Algoritmo da Camada de Valencia
 
-## Método: Miller-Rabin Determinístico
+## Miller-Rabin Determinístico
 
-O módulo `primos_mod.f90` implementa o teste de primalidade de **Miller-Rabin determinístico** para números de até 64 bits (n < 2⁶⁴).
+O módulo `primos_mod.f90` implementa o teste de primalidade de **Miller-Rabin determinístico** para números de até 64 bits (`n < 2⁶⁴`).
 
-### Bases utilizadas (7 bases)
+### Bases determinísticas (64 bits)
 
 ```
 [2, 325, 9375, 28178, 450775, 9780504, 1795265022]
 ```
 
-Este conjunto é deterministicamente correto para todo n < 2⁶⁴ (resultado de Jim Sinclair, 2011). Nenhum número composto abaixo de 2⁶⁴ passa no teste com estas 7 bases.
+Este conjunto (Sinclair, 2011) é correto para **todo** `n < 2⁶⁴`. Nenhum composto abaixo desse limite passa no teste.
 
 ### Algoritmo
 
 ```
-1. Se n < 2 → composto
-2. Se n ∈ {2,3,5,7,11,13,17,19,23,29} → primo
-3. Se n é divisível por qualquer primo ≤ 29 → composto
-4. Escrever n−1 = d × 2ˢ  (d ímpar)
-5. Para cada base a:
-   a. x = aᵈ mod n
-   b. Se x = 1 ou x = n−1 → passar para próxima base
-   c. Para r = 1 até s−1:
-      - x = x² mod n
-      - Se x = n−1 → sair do loop interno
-   d. Se x ≠ n−1 → composto
-6. Se passou todas as bases → primo
+is_prime(n):
+  1. Se n ≤ 1           → FALSO
+  2. Se n = 2 ou n = 3  → VERDADEIRO
+  3. Divisores pequenos: testar primos ≤ 29
+  4. Escrever n-1 = d × 2ˢ  (d ímpar)
+  5. Para cada base a ∈ BASES:
+     a. x = aᵈ mod n
+     b. Se x = 1 ou x = n-1 → próximo
+     c. Repetir s-1 vezes: x = x² mod n
+     d. Se x ≠ n-1 → FALSO
+  6. → VERDADEIRO
 ```
 
-### Implementação
+### Casos especiais tratados
 
-- `mul_mod(a, b, m)`: multiplicação modular segura usando inteiro **128-bit** intermediário (`integer(kind=16)`) para evitar overflow em `a × b` antes do `mod m`
-- `pow_mod(a, b, m)`: exponenciação modular rápida O(log b) via quadratura repetida
-- `is_prime(n)`: função principal, chama as anteriores com as 7 bases
+| Condição | Resultado | Razão |
+|----------|-----------|-------|
+| n ≤ 1 | Composto | Definição |
+| n = 2, 3 | Primo | Casos base |
+| n par > 2 | Composto | Divisível por 2 |
+| n múltiplo de 3,5,7,11,13,17,19,23,29 | Composto | Eliminação rápida |
 
-### Limitação
+### Implementação em Fortran
 
-O tipo `integer(i8)` no Fortran é **signed 64-bit**: intervalo [−2⁶³, 2⁶³−1] ≈ [−9,22×10¹⁸, 9,22×10¹⁸].
+O módulo `primos_mod` contém:
 
-**Maior primo testável**: 9.223.372.036.854.775.783 (gap 24 abaixo de 2⁶³−1).
+- `mul_mod(a, b, m)` — multiplicação modular com inteiro **128-bit** intermediário
+  ```fortran
+  integer(i16) :: a16, b16, m16
+  a16 = a; b16 = b; m16 = m
+  res = int(mod(a16 * b16, m16), i8)
+  ```
+- `pow_mod(a, b, m)` — exponenciação modular O(log b)
+- `is_prime(n)` — wrapper completo com as 7 bases
 
-### Uso no programa
+### Integração com o Algoritmo da Camada de Valência
+
+O `is_prime` é usado diretamente por `proximo_primo`:
 
 ```fortran
-use primos_mod
-
-if (is_prime(n)) then
-    print *, n, "eh primo"
-else
-    print *, n, "nao eh primo"
-end if
+subroutine proximo_primo(start_number, next_prime, gap, contagens, n_terms)
+  ! ...
+  candidato = start_number
+  do
+     candidato = candidato + 1
+     if (is_prime(candidato)) exit   ! <-- Miller-Rabin aqui
+  end do
+  ! ...
+end subroutine
 ```
 
-### Linha de comando
+Também é usado pelo crivo segmentado e pelo `preencher_gap` indiretamente (gaps pares são sempre decomponíveis, mas a primalidade dos candidatos é verificada via Miller-Rabin).
 
-```bash
-# Verificar primalidade de um numero especifico:
-# (usar o codigo fonte como referencia ou adaptar)
+### Limitação: n < 2⁶⁴
 
-# Exemplo com o programa primos_valencia:
-# O programa so processa numeros que sao primos,
-# entao -inicio com um numero composto avanca ate o proximo primo
-bin\primos_valencia.exe -inicio 9223372036854775783 -quantos 1 -silencioso
+O tipo `integer(i8)` no Fortran é **signed 64-bit**:
+
+```
+Intervalo: [−2⁶³, 2⁶³−1] ≈ [−9,22×10¹⁸, 9,22×10¹⁸]
+Maior primo testável: 9.223.372.036.854.775.783 (gap = 24 até 2⁶³−1)
+```
+
+### Extensão para 128 bits
+
+O módulo `miller_rabin_128` (em `src/miller_rabin_128.f90`) estende o teste para `n < 2¹²⁸` usando:
+
+- **12 bases determinísticas**: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37]
+- **Multiplicação modular por duplicação** (`add_mod` seguro sem overflow)
+- `integer(i16)` = `selected_int_kind(33)` (128-bit signed)
+
+```fortran
+! Adição modular sem overflow
+function add_mod(a, b, m) result(res)
+  if (a > m - b) then
+    res = a - (m - b)   ! a + b - m
+  else
+    res = a + b
+  end if
+end function
 ```
 
 ### Referências
 
 - Jim Sinclair, "Deterministic Miller-Rabin for n < 2^64" (2011)
-- Bases verificadas e confirmadas por Iain McDonald, 2020
+- Bases para 2⁶⁴ verificadas por Iain McDonald (2020)
+- Bases para 2¹²⁸: Jim Sinclair / PrimeFac (2011)

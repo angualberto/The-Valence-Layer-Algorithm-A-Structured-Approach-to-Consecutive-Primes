@@ -20,7 +20,8 @@ Exemplo: gap 114 = 64 + 34 + 16 (3 termos, modo variado: 64+34+16).
 
 ```
 ├── src/
-│   ├── primos_mod.f90          # Módulo (Miller-Rabin + gap decomposition)
+│   ├── primos_mod.f90          # Módulo (Miller-Rabin 64-bit + gap decomposition)
+│   ├── miller_rabin_128.f90    # Miller-Rabin 128-bit (12 bases)
 │   ├── primos_valencia.f90     # CLI principal
 │   └── crivo_segmentado.f90    # Crivo segmentado (π(N) até 10¹⁰+)
 ├── demo/
@@ -28,7 +29,13 @@ Exemplo: gap 114 = 64 + 34 + 16 (3 termos, modo variado: 64+34+16).
 │   ├── verifica_gap_grande.f90 # Gap do maior primo 64-bit
 │   ├── busca_gap_rapido.f90    # Busca rápida de gaps grandes
 │   ├── agle_distribution.f90   # Integração AGLE (análise estatística)
-│   └── maior_primo.f90         # Maior primo < 2⁶³
+│   ├── maior_primo.f90         # Maior primo < 2⁶³
+│   └── test_mr128.f90          # Teste do Miller-Rabin 128-bit
+├── docs/
+│   ├── primalidade.md          # Documentação do teste de primalidade
+│   └── resultados.md           # Resultados numéricos
+├── results/
+│   └── primeiros_30_primos.txt # Sample output
 ├── Makefile
 ├── README.md
 ├── LICENSE
@@ -100,12 +107,31 @@ Termos (variado): 7
   1x120 1x64 1x34 1x32 1x30 1x28 0x... 1x12 ...
 ```
 
-### Verificação de Primalidade
+### Teste de Primalidade — Miller-Rabin
 
-O módulo `primos_mod` usa:
-- **Miller-Rabin determinístico** com 7 bases para n < 2⁶⁴
-- **Multiplicação modular segura** com inteiro 128-bit (evita overflow)
-- **Decomposição gulosa** e **variada** de gaps no conjunto de 16 ferramentas
+O Algoritmo da Camada de Valência depende de um teste de primalidade rápido e determinístico. O Miller-Rabin é a escolha ideal.
+
+**64 bits** (`primos_mod.f90`):
+- 7 bases determinísticas para `n < 2⁶⁴`
+- `mul_mod` com inteiro **128-bit intermediário** para evitar overflow
+- Usado por `proximo_primo` para validar candidatos a primo
+
+**128 bits** (`miller_rabin_128.f90`):
+- 12 bases determinísticas para `n < 2¹²⁸`
+- `add_mod` seguro sem overflow via subtração condicional
+- `mul_mod` por duplicação (Russian peasant)
+
+```fortran
+! O coração do algoritmo: is_prime usado dentro de proximo_primo
+subroutine proximo_primo(start_number, next_prime, gap, ...)
+  do
+     candidato = candidato + 1
+     if (is_prime(candidato)) exit   ! Miller-Rabin 64-bit
+  end do
+end subroutine
+```
+
+Veja [`docs/primalidade.md`](docs/primalidade.md) para detalhes completos.
 
 ### Maior primo 64-bit
 
