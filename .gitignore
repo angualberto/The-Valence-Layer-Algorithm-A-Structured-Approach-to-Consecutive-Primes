@@ -1,0 +1,9 @@
+bin/
+*.exe
+*.o
+*.mod
+*.csv
+*.txt
+*.dat
+primos.txt
+primos_*.csv
