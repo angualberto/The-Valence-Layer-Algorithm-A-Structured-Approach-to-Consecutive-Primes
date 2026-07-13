@@ -20,9 +20,20 @@ $(BINDIR)/primos_valencia.exe: $(SRCDIR)/primos_valencia.f90 $(BINDIR)/primos_mo
 $(BINDIR)/crivo_segmentado.exe: $(SRCDIR)/crivo_segmentado.f90 | $(BINDIR)
 	$(FC) $(FFLAGS) $< -o $@
 
-demo: $(BINDIR)/verifica_gap.exe
+DEMOS = verifica_gap.exe busca_gap_rapido.exe maior_primo.exe verifica_gap_grande.exe
+
+demo: $(addprefix $(BINDIR)/, $(DEMOS))
 
 $(BINDIR)/verifica_gap.exe: $(DEMODIR)/verifica_gap.f90 $(BINDIR)/primos_mod.o | $(BINDIR)
+	$(FC) $(FFLAGS) $< $(BINDIR)/primos_mod.o -o $@
+
+$(BINDIR)/busca_gap_rapido.exe: $(DEMODIR)/busca_gap_rapido.f90 $(BINDIR)/primos_mod.o | $(BINDIR)
+	$(FC) $(FFLAGS) $< $(BINDIR)/primos_mod.o -o $@
+
+$(BINDIR)/maior_primo.exe: $(DEMODIR)/maior_primo.f90 $(BINDIR)/primos_mod.o | $(BINDIR)
+	$(FC) $(FFLAGS) $< $(BINDIR)/primos_mod.o -o $@
+
+$(BINDIR)/verifica_gap_grande.exe: $(DEMODIR)/verifica_gap_grande.f90 $(BINDIR)/primos_mod.o | $(BINDIR)
 	$(FC) $(FFLAGS) $< $(BINDIR)/primos_mod.o -o $@
 
 clean:

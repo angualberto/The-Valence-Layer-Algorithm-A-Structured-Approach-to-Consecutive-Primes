@@ -16,7 +16,7 @@ program verifica_gap
   ok = preencher_gap(gap, contagens, n_terms)
   if (ok) then
      print "(A,I0,A)", "Decomposicao em ", n_terms, " termos:"
-     print "(8(I0,'x',I0,' '))", (contagens(i), FERRAMENTAS(i), i=1, MAX_FERRAMENTAS)
+     print "(*(I0,'x',I0,' '))", (contagens(i), FERRAMENTAS(i), i=1, MAX_FERRAMENTAS)
      print "(A,I0)", "Soma: ", sum(contagens * FERRAMENTAS)
   else
      print "(A)", "Falha na decomposicao!"

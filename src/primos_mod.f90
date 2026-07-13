@@ -3,8 +3,9 @@ module primos_mod
   integer, parameter :: i8 = selected_int_kind(18)
   integer, parameter :: i16 = selected_int_kind(33)
   integer, parameter :: dp = kind(1.0d0)
-  integer, parameter :: MAX_FERRAMENTAS = 8
-  integer(i8), parameter :: FERRAMENTAS(MAX_FERRAMENTAS) = [120_i8, 64_i8, 34_i8, 20_i8, 10_i8, 6_i8, 4_i8, 2_i8]
+  integer, parameter :: MAX_FERRAMENTAS = 16
+  integer(i8), parameter :: FERRAMENTAS(MAX_FERRAMENTAS) = [120_i8, 64_i8, 34_i8, 32_i8, 30_i8, 28_i8, 24_i8, 20_i8, &
+       18_i8, 16_i8, 12_i8, 10_i8, 8_i8, 6_i8, 4_i8, 2_i8]
 
 contains
 
@@ -112,6 +113,47 @@ contains
     end if
   end function preencher_gap
 
+  ! Usa cada ferramenta no maximo 1 vez (maiores primeiro), resto com 2
+  function preencher_gap_variado(G, contagens, n_terms) result(sucesso)
+    integer(i8), intent(in) :: G
+    integer(i8), intent(out) :: contagens(MAX_FERRAMENTAS)
+    integer, intent(out) :: n_terms
+    logical :: sucesso
+    integer(i8) :: resto
+    integer :: i
+
+    if (mod(G, 2_i8) /= 0) then
+       sucesso = .false.
+       return
+    end if
+
+    resto = G
+    contagens = 0_i8
+    n_terms = 0
+
+    ! Tenta usar cada ferramenta (exceto 2) no maximo 1 vez
+    do i = 1, MAX_FERRAMENTAS - 1
+       if (resto >= FERRAMENTAS(i)) then
+          contagens(i) = 1_i8
+          n_terms = n_terms + 1
+          resto = resto - FERRAMENTAS(i)
+       end if
+    end do
+
+    ! Preenche o resto com a ferramenta 2 (ultima)
+    if (mod(resto, 2_i8) == 0) then
+       contagens(MAX_FERRAMENTAS) = resto / 2_i8
+       n_terms = n_terms + int(resto / 2_i8)
+       resto = 0_i8
+    end if
+
+    if (resto == 0_i8) then
+       sucesso = .true.
+    else
+       sucesso = .false.
+    end if
+  end function preencher_gap_variado
+
   subroutine proximo_primo(start_number, next_prime, gap, contagens, n_terms)
     integer(i8), intent(in) :: start_number
     integer(i8), intent(out) :: next_prime, gap
@@ -185,12 +227,12 @@ contains
 
        if (print_to_screen) then
           write(*, '(A, I0, A, I0)') '  Gap: ', gap, '  Termos: ', n_terms
-          write(*, '(A, 8(I0, A))') '  Ferramentas: ', &
+          write(*, '(A, *(I0, A, I0, A))') '  Ferramentas: ', &
                (contagens(i), 'x', FERRAMENTAS(i), ' ', i=1, MAX_FERRAMENTAS)
        end if
        write(unit, '(A, I0, A, I0)') '# Gap: ', gap, '  Termos: ', n_terms
-       write(unit, '(A, 8(I0, A))') '# Ferramentas: ', &
-            (contagens(i), 'x', FERRAMENTAS(i), ' ', i=1, MAX_FERRAMENTAS)
+        write(unit, '(A, *(I0, A, I0, A))') '# Ferramentas: ', &
+             (contagens(i), 'x', FERRAMENTAS(i), ' ', i=1, MAX_FERRAMENTAS)
 
        current_prime = next_p
     end do
