@@ -133,13 +133,18 @@ end subroutine
 
 Veja [`docs/primalidade.md`](docs/primalidade.md) para detalhes completos.
 
-### Maior primo 64-bit
+### Large Prime Showcase
 
-```
-9.223.372.036.854.775.783
-```
+| Prime | Size | Found By | Gap Decomposition |
+|-------|------|----------|-------------------|
+| `9,223,372,036,854,775,783` | 64-bit (19 digits) | Fortran | 140 = 120 + 20 |
+| `170,141,183,460,469,231,731,687,303,715,884,105,727` | 128-bit (39 digits) = M127 | Fortran (Mersenne) | — |
+| `p ≈ 10^{4999} + δ` | 5000 digits | C+GMP (1039 s) | Gap 9978 = 120×83 + ... |
 
-Gap até o anterior: 140 (1×120 + 1×20). Penúltimo primo antes do limite de 2⁶³.
+The 64-bit prime `2⁶³−25` is the largest prime below `2⁶³`. The 128-bit
+prime `M127 = 2¹²⁷−1` is a Mersenne prime. The 5000-digit prime was
+produced by the C+GMP arbitrary-precision implementation
+(`src/valencia_gmp.c`).
 
 ### Licença
 
