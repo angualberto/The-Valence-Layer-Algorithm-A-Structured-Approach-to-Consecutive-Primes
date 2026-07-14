@@ -6,15 +6,25 @@ Uma abordagem estruturada para decomposição de gaps entre primos consecutivos 
 
 ### Conceito
 
-Todo gap par entre primos consecutivos pode ser decomposto como soma de elementos do conjunto de ferramentas:
+Todo gap entre primos consecutivos (exceto 3−2=1) é **par**.  
+Portanto, qualquer gap pode ser decomposto como soma de números pares.
+
+A **Caixa de Ferramentas** é um conjunto flexível de números pares que cresce conforme necessário.  
+O conjunto atual — otimizado para gaps até ~10⁴ — é:
 
 ```
-F = {120, 64, 34, 32, 30, 28, 24, 20, 18, 16, 12, 10, 8, 6, 4, 2}
+F = {1000, 500, 200, 120, 64, 34, 32, 30, 28, 24, 20, 18, 16, 12, 10, 8, 6, 4, 2}
 ```
 
-A decomposição gulosa (maior primeiro) sempre encontra uma representação exata. O modo `-variado` usa cada ferramenta no máximo uma vez, maximizando a diversidade de termos.
+A decomposição gulosa (maior primeiro) sempre encontra uma representação exata  
+porque **o 2 está sempre presente** — qualquer par é múltiplo de 2.  
+O modo `-variado` usa cada ferramenta no máximo uma vez, maximizando a diversidade de termos.
 
 Exemplo: gap 114 = 64 + 34 + 16 (3 termos, modo variado: 64+34+16).
+
+A caixa pode ser expandida com mais pares para gaps maiores — a única exigência  
+é que o **2** esteja sempre presente, pois ele é o bloco fundamental  
+(2 = 1+1, a primeira decomposição).
 
 ### Estrutura do Projeto
 
