@@ -35,9 +35,8 @@ such lines found no counterexample.
 The implementation and data are publicly available.  We also test
 Goldbach's conjecture up to ten million, confirming that every even
 number has a prime pair decomposition following the Hardy--Littlewood
-asymptotic.  Finally, we outline how the phase condition fits into
-the De Bruijn--Newman framework, leading to a candidate energy
-functional that would force the De Bruijn--Newman constant to zero.
+asymptotic.  The phase condition is discussed in the context of the
+De Bruijn--Newman framework as a direction for future work.
 \end{abstract}
 
 \noindent{\it Key words and phrases:}\ prime gap, valence layer algorithm,
@@ -59,8 +58,11 @@ The critical line $\Re(s)=1/2$ of the Riemann zeta function is the
 point where this decomposition is perfectly balanced.
 This observation, developed through a {\it valence} function
 $K(s)=2^s-1$, leads to a phase-symmetry condition
-$K(s)K(1-s)\in\mathbb{R}$ that is equivalent to $\Re(s)=1/2$, and
+$K(s)K(1-s)\in\mathbb{R}$ that is algebraically equivalent to
+$\Re(s)=1/2$ whenever $\Im(s)\neq n\pi/\ln2$.  The condition
 extends to every real base $q>0$, $q\neq1$ via $K_q(s)=q^s-1$.
+Whether any non-trivial zeta zero lies on the exceptional lines
+$t=n\pi/\ln2$ is an open problem that we examine numerically.
 
 The distribution of prime numbers is one of the deepest subjects in
 mathematics.  While the Prime Number Theorem (PNT) describes their
@@ -399,23 +401,17 @@ $\sqrt{N}$ and $1.36\sqrt{N}$.
 
 \subsection{The Reductionist Framework}
 
-The numerical data show that $L(N)$ behaves as a pure random walk:
-zero mean, standard deviation $\sqrt{N}$, and $\max|L|/\sqrt{N}\approx1.33$
-stable across three orders of magnitude.  This is precisely what one
-expects from a sequence with no long-range correlation.
+The numerical data show that $L(N)$ behaves similarly to a pure
+random walk: zero mean, standard deviation $\sqrt{N}$, and
+$\max|L|/\sqrt{N}\approx1.33$ stable across three orders of
+magnitude.  This is consistent with the growth bound
+$L(N)=O(N^{1/2+\varepsilon})$ that RH predicts.
 
-Combined with the classical equivalence, this observation establishes a
-{\it reductionist framework}: RH is equivalent to the statement that
-$\lambda(n)$ is a pure random walk -- unbiased and without long-range
-correlation.  The data provide overwhelming numerical evidence that this
-condition holds, and the constant $1.33$ appears universal.
-
-The formal proof of the remaining step --
-$L(N)=O(N^{1/2+\varepsilon})$ for every $\varepsilon>0$ -- remains open.
-Nevertheless, the algebraic structure and the empirical evidence
-support the study of the Liouville function as a natural bridge
-between the arithmetic of primes and the complex analysis of
-$\zeta(s)$.
+The formal proof of the bound --
+$L(N)=O(N^{1/2+\varepsilon})$ for every $\varepsilon>0$ -- remains
+open.  The empirical evidence supports the study of the Liouville
+function as a natural bridge between the arithmetic of primes and
+the complex analysis of $\zeta(s)$.
 
 \section{Phase Symmetry $K(s)K(1-s)\in\mathbb{R}$}
 \label{sec:phase}
@@ -447,11 +443,14 @@ With $2^s = e^{\sigma\ln2}\,e^{it\ln2}$,
 This vanishes iff $\sigma=1/2$ or $t\ln2=n\pi$.
 \end{proof}
 
-\begin{theorem}[Equivalence]
+\begin{proposition}
 \label{teo:equiv}
-For non-trivial zeros of $\zeta(s)$, the condition
-$K(s)K(1-s)\in\mathbb{R}$ is equivalent to $\Re(s)=\tfrac12$.
-\end{theorem}
+If $\rho$ is a non-trivial zero of $\zeta(s)$ and
+$K(\rho)K(1-\rho)\in\mathbb{R}$, then $\Re(\rho)=\tfrac12$,
+provided $\Im(\rho)\neq n\pi/\ln2$.  Whether any zero lies on an
+exceptional line $t=n\pi/\ln2$ with $\sigma\neq1/2$ is an open
+question.
+\end{proposition}
 
 \subsection{Numerical Exclusion of Exceptional Lines}
 
@@ -459,60 +458,29 @@ The lines $t=n\pi/\ln2$ are the only algebraic loophole in
 Prop.~\ref{prop:symmetry}.  We scanned 200 such lines
 ($n=1\dots200$, $\sigma=0.05\dots0.95$, step $0.05$) using
 mpmath with 30-digit precision.  No candidate with
-$|\zeta(s)|<10^{-4}$ was found.
+$|\zeta(s)|<10^{-4}$ was found.  This numerical evidence is
+consistent with the conjecture that no zero lies on these
+lines, but it does not constitute a proof.
 
 An additional random sample of 2000 points ($\sigma\in(0,1)$,
 $t\in(0,50)$) confirmed that Im$(K(s)K(1-s))$ only vanishes on
 $\sigma=0.5$ or on the exceptional lines (where $\zeta(s)\neq0$).
 
-\section{Connection to De Bruijn--Newman}
+\section{Remark on De Bruijn--Newman}
 \label{sec:dbn}
 
-The De Bruijn--Newman family is defined as:
-\[
-H_\lambda(z) = \int_0^\infty e^{\lambda u^2}\,\Phi(u)\,e^{izu}\,du,
-\]
-where $\Phi$ is related to the Riemann $\xi$ function by
-$H_0(z)=\xi(\tfrac12+iz)$.  The constant $\Lambda$ is the infimum
-of $\lambda$ for which $H_\lambda$ has only real zeros.
+The De Bruijn--Newman constant $\Lambda$ is the infimum of $\lambda$
+for which $H_\lambda$ has only real zeros, where $H_\lambda$ is
+defined as in~\cite{rodgers-tao}.  Rodgers and Tao proved
+$\Lambda\ge0$, and RH is equivalent to $\Lambda=0$.
 
-Rodgers and Tao~\cite{rodgers-tao} proved $\Lambda\ge0$.  The
-Riemann Hypothesis is equivalent to $\Lambda=0$.
-
-\subsection{Energy Functional}
-
-Consider the weighted Sobolev norm:
-\[
-E(\lambda) = \int_{-\infty}^\infty
-\Bigl(\bigl|H_\lambda'(z)\bigr|^2 + |H_\lambda(z)|^2\Bigr)\,
-e^{-z^2}\,dz.
-\]
-
-By the backward heat equation $\partial_\lambda H = \partial_z^2 H$,
-$E(\lambda)$ is non-increasing:
-\[
-\frac{dE}{d\lambda} = -2\int_{-\infty}^\infty |H_\lambda''(z)|^2
-e^{-z^2}\,dz \le 0.
-\]
-
-If $\lambda>0$, complex zeros of $H_\lambda$ introduce a non-zero
-phase in $K(s)K(1-s)$.  This phase manifests as a positive imaginary
-contribution to $E(\lambda)$ through the logarithmic derivative:
-\[
-\Im\bigl(E(\lambda)\bigr) =
-\sum_{\rho:\;H_\lambda(\rho)=0} \Im\bigl(K(\rho)K(1-\rho)\bigr).
-\]
-
-For the symmetry $K(s)K(1-s)\in\mathbb{R}$ to be preserved, every
-zero $\rho$ must satisfy $\Im(K(\rho)K(1-\rho))=0$, which forces
-$\Re(\rho)=1/2$ by Prop.~\ref{prop:symmetry}.  Hence $\lambda$
-cannot be positive, so $\Lambda\le0$.  Combined with
-$\Lambda\ge0$~\cite{rodgers-tao}, we obtain $\Lambda=0$.
-
-The key estimate---that a non-real zero contributes a strictly
-positive amount to $\Im(E(\lambda))$---remains to be proved
-rigorously, but the algebraic and numerical evidence strongly
-supports it.
+A possible connection between the phase condition
+$K(s)K(1-s)\in\mathbb{R}$ and the De Bruijn--Newman framework is
+suggested by the fact that complex zeros of $H_\lambda$ would, if
+they existed, correspond to zeros of $\zeta$ off the critical line.
+The interplay between the heat equation $\partial_\lambda H =
+\partial_z^2 H$ and the valence function $K(s)$ is a topic for
+future investigation.
 
 \section{Conclusion}
 \label{sec:conc}
@@ -526,9 +494,8 @@ The Valence Layer Algorithm provides:
     ($H\approx0.5$), and uniform last-digit distribution across
     40 residue classes;
   \item A phase symmetry $K(s)K(1-s)\in\mathbb{R}$ that is
-    algebraically equivalent to $\Re(s)=1/2$;
-  \item A candidate energy functional $E(\lambda)$ in the
-    De Bruijn--Newman framework;
+    algebraically equivalent to $\Re(s)=1/2$, with the open
+    problem of exceptional lines discussed numerically;
   \item Verification of Goldbach's conjecture up to $10^7$ and
     a structural connection through parity and the Hardy--Littlewood
     circle method.
