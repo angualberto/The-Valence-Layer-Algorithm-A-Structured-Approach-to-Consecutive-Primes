@@ -7,3 +7,7 @@ bin/
 *.dat
 !results/*.txt
 !results/*.dat
+!dados/*.txt
+!dados/*.dat
+!primos.txt
+!primos_*.txt
