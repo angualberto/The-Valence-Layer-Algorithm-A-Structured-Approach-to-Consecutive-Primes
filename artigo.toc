@@ -1,0 +1,22 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{}%
+\contentsline {section}{\numberline {2}The Valence Layer Algorithm}{3}{}%
+\contentsline {subsection}{\numberline {2.1}The Toolbox}{3}{}%
+\contentsline {subsection}{\numberline {2.2}Algorithm}{3}{}%
+\contentsline {subsection}{\numberline {2.3}Implementation}{3}{}%
+\contentsline {section}{\numberline {3}Numerical Results}{4}{}%
+\contentsline {subsection}{\numberline {3.1}Carmichael Numbers}{4}{}%
+\contentsline {subsection}{\numberline {3.2}Benchmarks}{4}{}%
+\contentsline {subsection}{\numberline {3.3}Fractal Analysis}{4}{}%
+\contentsline {subsubsection}{\numberline {3.3.1}Hurst Exponent}{5}{}%
+\contentsline {subsubsection}{\numberline {3.3.2}Normalized Gap Distribution}{5}{}%
+\contentsline {subsection}{\numberline {3.4}Last Two Digits (``Octave Resonance'')}{6}{}%
+\contentsline {section}{\numberline {4}Goldbach's Conjecture}{6}{}%
+\contentsline {subsection}{\numberline {4.1}Numerical Verification}{6}{}%
+\contentsline {section}{\numberline {5}The Liouville Function and the Reductionist Framework}{7}{}%
+\contentsline {subsection}{\numberline {5.1}Numerical Verification of the Bound}{7}{}%
+\contentsline {subsection}{\numberline {5.2}The Reductionist Framework}{8}{}%
+\contentsline {section}{\numberline {6}Phase Symmetry $K(s)K(1-s)\in \mathbb {R}$}{8}{}%
+\contentsline {subsection}{\numberline {6.1}Numerical Exclusion of Exceptional Lines}{9}{}%
+\contentsline {section}{\numberline {7}Connection to De Bruijn--Newman}{9}{}%
+\contentsline {subsection}{\numberline {7.1}Energy Functional}{9}{}%
+\contentsline {section}{\numberline {8}Conclusion}{10}{}%
