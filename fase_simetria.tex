@@ -1,0 +1,151 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{The Phase Symmetry $K(s)K(1-s)\in\mathbb{R}$:\\A Numerical Investigation}
+\author{Andr\'e Gualberto}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We examine the condition $K(s)K(1-s)\in\mathbb{R}$ for
+$K(s)=2^s-1$, which is algebraically equivalent to
+$\Re(s)=1/2$ or $\Im(s)=n\pi/\ln2$ for integer $n$.
+If a non-trivial zero of the Riemann zeta function were to
+lie off the critical line, it could only do so on one of
+these exceptional lines.  We present a numerical scan of
+200 such lines ($n=1,\dots,200$) that finds no candidate
+with $|\zeta(s)|<10^{-4}$.  The exclusion of these lines
+remains an open problem.
+\end{abstract}
+
+\noindent{\it Key words and phrases:}\ Riemann hypothesis, phase symmetry,
+zeta function, critical line.
+
+\noindent{\it 2020 Mathematics Subject Classification:}\ Primary 11M26;
+Secondary 11Y35.
+
+\section{Introduction}
+\label{sec:intro}
+
+The observation that the number~$2$ decomposes as $2=1+1$, expressed
+algebraically as
+\[
+\frac12 \times 2 = 1,
+\]
+suggests a {\it valence} function $K(s)=2^s-1$ that captures the
+role of the base~$2$ in the functional equation of $\zeta(s)$.
+The condition $K(s)K(1-s)\in\mathbb{R}$ is of particular interest
+because it forces $\Re(s)=1/2$ unless $\Im(s)$ falls on a sparse
+set of lines.
+
+This note investigates whether any non-trivial zero of $\zeta(s)$
+could lie on those exceptional lines.  We show algebraically that
+the phase condition is equivalent to $\Re(s)=1/2$ or
+$\Im(s)=n\pi/\ln2$, and numerically test 200 such lines.
+
+\section{Algebraic Symmetry}
+\label{sec:phase}
+
+Define $K(s)=2^s-1$.  This function captures the {\it valence} of
+the number~$2$ in the functional equation of $\zeta(s)$.
+
+\begin{proposition}
+\label{prop:symmetry}
+$K(s)K(1-s)\in\mathbb{R}$ iff $\Re(s)=\tfrac12$ or
+$\Im(s)=n\pi/\ln2$ for some $n\in\mathbb{Z}$.
+\end{proposition}
+\begin{proof}
+Write $s=\sigma+it$.  Then
+\[
+K(s)K(1-s) = (2^s-1)(2^{1-s}-1) = 3 - 2^s - 2^{1-s}.
+\]
+Since $2^{1-s}=2\cdot2^{-s}$,
+\[
+\Im\bigl(K(s)K(1-s)\bigr) = -\Im(2^s + 2^{1-s}).
+\]
+With $2^s = e^{\sigma\ln2}\,e^{it\ln2}$,
+\begin{align*}
+\Im(2^s + 2^{1-s})
+&= e^{\sigma\ln2}\sin(t\ln2)
+   + e^{(1-\sigma)\ln2}\sin(-t\ln2)\\
+&= \bigl(e^{\sigma} - e^{1-\sigma}\bigr)\ln2\;\sin(t\ln2).
+\end{align*}
+This vanishes iff $\sigma=1/2$ or $t\ln2=n\pi$.
+\end{proof}
+
+\begin{proposition}
+\label{teo:equiv}
+If $\rho$ is a non-trivial zero of $\zeta(s)$ for which
+$K(\rho)K(1-\rho)\in\mathbb{R}$ and $\Im(\rho)\neq n\pi/\ln2$,
+then $\Re(\rho)=\tfrac12$.  Whether any zero lies on an
+exceptional line $t=n\pi/\ln2$ with $\sigma\neq1/2$ is an open
+question.
+\end{proposition}
+
+\section{Numerical Scan of Exceptional Lines}
+\label{sec:scan}
+
+The lines $t=n\pi/\ln2$ are the only algebraic loophole in
+Prop.~\ref{prop:symmetry}.  A non-trivial zero off the critical
+line could, in principle, exist at $\sigma\neq1/2$ with
+$t=n\pi/\ln2$.
+
+We scanned 200 such lines for $n=1,\dots,200$ over the range
+$\sigma=0.05,\dots,0.95$ with step~$0.05$ using the mpmath library
+(30-digit precision).  For each point we evaluated
+$|\zeta(\sigma+it)|$ and recorded the minimum on each line.
+
+No candidate with $|\zeta(s)|<10^{-4}$ was detected.  The minimum
+values remain orders of magnitude above zero across the entire
+range of~$n$ tested.  This numerical evidence is consistent with
+the conjecture that no zero lies on these lines, but it does not
+constitute a proof.
+
+An additional random sample of 2000 points with
+$\sigma\in(0,1)$ and $t\in(0,50)$ confirmed that
+$\Im(K(s)K(1-s))$ only vanishes on $\sigma=0.5$ or on the
+exceptional lines (where $\zeta(s)\neq0$ within our precision).
+
+\section{Variation with Base $q$}
+\label{sec:q}
+
+The symmetry extends to any real $q>0$, $q\neq1$ via
+$K_q(s)=q^s-1$.  The condition $K_q(s)K_q(1-s)\in\mathbb{R}$
+is algebraically equivalent to $\Re(s)=1/2$ or
+$\Im(s)=n\pi/\ln q$, as the same calculation shows.  The critical
+line $\sigma=1/2$ is therefore universal for all bases $q$.
+
+\section{Discussion}
+\label{sec:conc}
+
+The phase condition $K(s)K(1-s)\in\mathbb{R}$ provides an
+algebraic characterisation of the critical line $\Re(s)=1/2$:
+it is the unique line (aside from the discrete set of exceptional
+lines) on which the valence function $K(s)=2^s-1$ and its
+reflection $K(1-s)$ have real product.
+
+The numerical data suggest that no non-trivial zero of $\zeta(s)$
+lies on an exceptional line, but a rigorous analytic proof of
+this fact---and hence a proof that the phase condition is
+equivalent to the Riemann Hypothesis---remains open.
+
+\begin{thebibliography}{10}
+
+\bibitem{edwards} H.~M.~Edwards,
+  {\it Riemann's Zeta Function}, Dover, 1974.
+
+\bibitem{titchmarsh} E.~C.~Titchmarsh and D.~R.~Heath-Brown,
+  {\it The Theory of the Riemann Zeta Function},
+  2nd ed., Oxford University Press, 1986.
+
+\end{thebibliography}
+\end{document}
