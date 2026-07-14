@@ -3,61 +3,52 @@
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{graphicx}
-\usepackage{booktabs}
-%\usepackage{geometry}
 \usepackage{float}
 
-\theoremstyle{definition}
-\newtheorem{defn}{Definition}
-\newtheorem{teo}{Theorem}
-\newtheorem{coro}{Corollary}
-\newtheorem{prop}{Proposition}
-\newtheorem{lema}{Lemma}
-\newtheorem{conj}{Conjecture}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
 
 \title{The Valence Layer Algorithm:\\Prime Gaps, Phase Symmetry, and\\the Riemann Hypothesis}
 \author{Andr\'e Gualberto}
-\date{\today}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-We present the {\it Valence Layer Algorithm}, a deterministic framework
+We present the Valence Layer Algorithm, a deterministic framework
 for generating consecutive primes and decomposing prime gaps using a
-fixed set of even ``tools.''  Every gap between consecutive odd primes
+fixed set of even tools.  Every gap between consecutive odd primes
 is even and can be expressed exactly as a sum of tools.  Numerical
-validation across five scales ($10^3$ to $10^{15}$) confirms the Prime
-Number Theorem prediction $\text{gap}\sim\ln N$, and Hurst exponent
-analysis ($H\approx0.5$) shows that gaps behave as white noise with
-fractal dimension $D\approx1.5$.
+validation across five scales confirms the Prime Number Theorem
+prediction for gaps, and Hurst exponent analysis shows that gaps
+behave as white noise.
 
-We then connect the algorithm's underlying symmetry function
-$K(s)=2^s-1$ to the Riemann Hypothesis through the condition
-$K(s)K(1-s)\in\mathbb{R}$, proving algebraically that this is
-equivalent to $\Re(s)=\tfrac12$ (except for exceptional lines
-$t=n\pi/\ln2$, which are numerically empty).  A scan of 200 such
-lines ($n=1\dots200$, $\sigma=0.05\dots0.95$) found no candidate
-with $|\zeta(s)|<10^{-4}$.
+We then connect the algorithm's underlying symmetry function to the
+Riemann Hypothesis through a real-valued phase condition, proving
+algebraically that this condition forces the real part of a
+non-trivial zeta zero to be one-half, except for a sparse set of
+exceptional lines that are numerically empty.  A scan of two hundred
+such lines found no counterexample.
 
-The full implementation and data are available at
-\texttt{https://github.com/angualberto/The-Valence-Layer-Algorithm-A-Structured-Approach-to-Consecutive-Primes}.
-
-We also test Goldbach's conjecture for even numbers up to $10^7$,
-confirming that every tested $N$ has at least one prime pair
-decomposition, with the count following the Hardy--Littlewood
-asymptotic.  Finally, we outline how the phase condition
-$K(s)K(1-s)\in\mathbb{R}$ fits into the De Bruijn--Newman
-framework, providing a candidate energy functional that would
-force $\Lambda=0$.
+The implementation and data are publicly available.  We also test
+Goldbach's conjecture up to ten million, confirming that every even
+number has a prime pair decomposition following the Hardy--Littlewood
+asymptotic.  Finally, we outline how the phase condition fits into
+the De Bruijn--Newman framework, leading to a candidate energy
+functional that would force the De Bruijn--Newman constant to zero.
 \end{abstract}
 
-\tableofcontents
+\noindent{\it Key words and phrases:}\ prime gap, valence layer algorithm,
+Riemann hypothesis, Liouville function, Goldbach conjecture,
+phase symmetry.
 
-%=====================================================================
+\noindent{\it 2020 Mathematics Subject Classification:}\ Primary 11A41;
+Secondary 11M26, 11N05, 11P32.
+
 \section{Introduction}
 \label{sec:intro}
-%=====================================================================
 
 The number $2$ is the first sum $1+1$, and the fundamental equation
 \[
@@ -88,10 +79,8 @@ This paper introduces the {\it Valence Layer Algorithm}, a method that:
     to the Riemann Hypothesis and to Goldbach's conjecture.
 \end{enumerate}
 
-%=====================================================================
 \section{The Valence Layer Algorithm}
 \label{sec:alg}
-%=====================================================================
 
 \subsection{The Toolbox}
 \label{sec:tools}
@@ -106,20 +95,20 @@ Since $2\in\mathcal{V}$, {\bf any even integer} can be decomposed as
 a sum of tools via the greedy algorithm (largest first, as many times
 as needed).
 
-\begin{prop}[Gap Parity]
+\begin{proposition}[Gap Parity]
 \label{prop:parity}
 Every gap between consecutive odd primes is even.
 The only exception is $3-2=1$.
-\end{prop}
+\end{proposition}
 \begin{proof}
 All primes $p>2$ are odd.  The difference of two odd numbers is even.
 For $2$ and $3$, the gap is $1$ by inspection.
 \end{proof}
 
-\begin{coro}
+\begin{corollary}
 \label{coro:decomp}
 Every prime gap $G>1$ can be decomposed using $\mathcal{V}$.
-\end{coro}
+\end{corollary}
 
 \subsection{Algorithm}
 \label{sec:algo}
@@ -151,10 +140,8 @@ The algorithm is implemented in three languages:
     statistical analysis.
 \end{itemize}
 
-%=====================================================================
 \section{Numerical Results}
 \label{sec:num}
-%=====================================================================
 
 \subsection{Carmichael Numbers}
 \label{sec:carmichael}
@@ -306,10 +293,8 @@ The distribution is consistent with perfect uniformity within
 statistical noise.  This confirms that prime gaps
 extend the parity symmetry $0.5\times2=1$ to the decimal level.
 
-%=====================================================================
 \section{Goldbach's Conjecture}
 \label{sec:goldbach}
-%=====================================================================
 
 Goldbach's conjecture states that every even $N>2$ can be written as
 $N=p+q$ with $p,q$ primes.  Define the counting function
@@ -347,10 +332,8 @@ Every even $N$ tested has at least one Goldbach partition.
 The ratio $r(N)/r_{\text{asym}}(N)$ is stable at $\approx0.57$,
 consistent with the asymptotic converging slowly from below.
 
-%=====================================================================
 \section{The Liouville Function and the Reductionist Framework}
 \label{sec:liouville}
-%=====================================================================
 
 The Riemann Hypothesis admits an equivalent formulation through the
 Liouville function $\lambda(n)=(-1)^{\Omega(n)}$, where $\Omega(n)$ is
@@ -372,13 +355,13 @@ A classical theorem (Landau--Ingham) states that RH is equivalent to
 We computed $L(N)$ up to $N=10^{8}$ using a sieve to count $\Omega(n)$.
 The C implementation (file {\tt liouville\_10\^{}8.c}) runs in 8 seconds
 on a standard desktop.  Table~\ref{tab:liouville_cota} shows the
-behaviour of $\max_{N\le10^{8}}|L(N)|/N^{1/2+\varepsilon}$.
+behavior of $\max_{N\le10^{8}}|L(N)|/N^{1/2+\varepsilon}$.
 
 \begin{table}[htbp]
 \centering
 \begin{tabular}{c c c}
 \hline
-$\varepsilon$ & $\max_{N\le10^{8}}|L(N)|/N^{1/2+\varepsilon}$ & Behaviour \\
+$\varepsilon$ & $\max_{N\le10^{8}}|L(N)|/N^{1/2+\varepsilon}$ & Behavior \\
 \hline
 $0.00$ & $1.231$ & Constant ($\approx1.3$) \\
 $0.05$ & $0.542$ & $\to0$ \\
@@ -434,19 +417,17 @@ indicate that RH is true, and that the Liouville function is the natural
 bridge between the arithmetic of primes and the complex analysis of
 $\zeta(s)$.
 
-%=====================================================================
 \section{Phase Symmetry $K(s)K(1-s)\in\mathbb{R}$}
 \label{sec:phase}
-%=====================================================================
 
 Define $K(s)=2^s-1$.  This function captures the {\it valence} of
 the number 2 in the functional equation of $\zeta(s)$.
 
-\begin{prop}
+\begin{proposition}
 \label{prop:symmetry}
 $K(s)K(1-s)\in\mathbb{R}$ iff $\Re(s)=\tfrac12$ or
 $\Im(s)=n\pi/\ln2$ for some $n\in\mathbb{Z}$.
-\end{prop}
+\end{proposition}
 \begin{proof}
 Write $s=\sigma+it$.  Then
 \[
@@ -466,11 +447,11 @@ With $2^s = e^{\sigma\ln2}\,e^{it\ln2}$,
 This vanishes iff $\sigma=1/2$ or $t\ln2=n\pi$.
 \end{proof}
 
-\begin{teo}[Equivalence]
+\begin{theorem}[Equivalence]
 \label{teo:equiv}
 For non-trivial zeros of $\zeta(s)$, the condition
 $K(s)K(1-s)\in\mathbb{R}$ is equivalent to $\Re(s)=\tfrac12$.
-\end{teo}
+\end{theorem}
 
 \subsection{Numerical Exclusion of Exceptional Lines}
 
@@ -484,10 +465,8 @@ An additional random sample of 2000 points ($\sigma\in(0,1)$,
 $t\in(0,50)$) confirmed that Im$(K(s)K(1-s))$ only vanishes on
 $\sigma=0.5$ or on the exceptional lines (where $\zeta(s)\neq0$).
 
-%=====================================================================
 \section{Connection to De Bruijn--Newman}
 \label{sec:dbn}
-%=====================================================================
 
 The De Bruijn--Newman family is defined as:
 \[
@@ -535,10 +514,8 @@ positive amount to $\Im(E(\lambda))$---remains to be proved
 rigorously, but the algebraic and numerical evidence strongly
 supports it.
 
-%=====================================================================
 \section{Conclusion}
 \label{sec:conc}
-%=====================================================================
 
 The Valence Layer Algorithm provides:
 \begin{enumerate}
@@ -576,16 +553,21 @@ supplies the algebraic framework, the computational implementation, and
 the empirical evidence that unequivocally point to the truth of the
 Riemann Hypothesis.
 
-\section*{Acknowledgments}
+\section{Acknowledgments}
 The author thanks Prof.\ Nilo Koscheck das Chagas for planting the seeds
 of curiosity that led to this work and for awakening the desire to
 tackle this problem.
 
+\noindent{\it Sequence numbers:}\
+A000040 (prime numbers),
+A002375 (Goldbach partitions),
+A008836 (Liouville function $\lambda(n)$).
+
 \begin{thebibliography}{10}
 
 \bibitem{rodgers-tao} H.~Ki, \'E.~Rivoal, and T.~Tao,
-  ``The De Bruijn--Newman constant is non-negative,''
-  {\it Forum of Mathematics, Pi}, vol.~8, 2020.
+  The De Bruijn--Newman constant is non-negative,
+  {\it Forum Math. Pi} \textbf{8} (2020).
 
 \bibitem{edwards} H.~M.~Edwards,
   {\it Riemann's Zeta Function}, Dover, 1974.
@@ -595,16 +577,16 @@ tackle this problem.
   2nd ed., Oxford University Press, 1986.
 
 \bibitem{hardy-littlewood} G.~H.~Hardy and J.~E.~Littlewood,
-  ``Some problems of `Partitio Numerorum'; III: On the expression
-  of a number as a sum of primes,'' {\it Acta Mathematica},
-  vol.~44, pp.~1--70, 1923.
+  Some problems of `Partitio Numerorum'; III: On the expression
+  of a number as a sum of primes,
+  {\it Acta Math.} \textbf{44} (1923), 1--70.
 
 \bibitem{efron} B.~Efron and T.~Hastie,
-  {\it Computer Age Statistical Inference}, Cambridge, 2016.
+  {\it Computer Age Statistical Inference}, Cambridge University Press, 2016.
 
 \bibitem{miller-rabin} M.~O.~Rabin,
-  ``Probabilistic algorithm for testing primality,''
-  {\it J. Number Theory}, vol.~12, pp.~128--138, 1980.
+  Probabilistic algorithm for testing primality,
+  {\it J. Number Theory} \textbf{12} (1980), 128--138.
 
 \end{thebibliography}
 \end{document}

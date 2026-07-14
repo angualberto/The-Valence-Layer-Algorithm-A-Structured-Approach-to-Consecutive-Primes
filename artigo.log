@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.7.14)  14 JUL 2026 19:20
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.7.14)  14 JUL 2026 19:47
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -146,73 +146,48 @@ File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
 \Gin@req@height=\dimen160
 \Gin@req@width=\dimen161
 )
-(C:\Users\Andre\AppData\Roaming\MiKTeX\tex/latex/booktabs\booktabs.sty
-Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
-\heavyrulewidth=\dimen162
-\lightrulewidth=\dimen163
-\cmidrulewidth=\dimen164
-\belowrulesep=\dimen165
-\belowbottomsep=\dimen166
-\aboverulesep=\dimen167
-\abovetopsep=\dimen168
-\cmidrulesep=\dimen169
-\cmidrulekern=\dimen170
-\defaultaddspace=\dimen171
-\@cmidla=\count296
-\@cmidlb=\count297
-\@aboverulesep=\dimen172
-\@belowrulesep=\dimen173
-\@thisruleclass=\count298
-\@lastruleclass=\count299
-\@thisrulewidth=\dimen174
-)
 (C:\Users\Andre\AppData\Roaming\MiKTeX\tex/latex/float\float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count300
+\c@float@type=\count296
 \float@exts=\toks31
 \float@box=\box55
 \@float@everytoks=\toks32
 \@floatcapt=\box56
 )
-\c@defn=\count301
-\c@teo=\count302
-\c@coro=\count303
-\c@prop=\count304
-\c@lema=\count305
-\c@conj=\count306
+\c@theorem=\count297
 
 (C:\Program Files\MiKTeX\tex/latex/l3backend\l3backend-pdftex.def
 File: l3backend-pdftex.def 2026-02-18 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count307
+\l__color_backend_stack_int=\count298
 ) (artigo.aux)
 \openout1 = `artigo.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 22.
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 22.
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 22.
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 22.
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 22.
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 22.
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 22.
-LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
 (C:\Program Files\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count308
-\scratchdimen=\dimen175
+\scratchcounter=\count299
+\scratchdimen=\dimen162
 \scratchbox=\box57
-\nofMPsegments=\count309
-\nofMParguments=\count310
+\nofMPsegments=\count300
+\nofMParguments=\count301
 \everyMPshowfont=\toks33
-\MPscratchCnt=\count311
-\MPscratchDim=\dimen176
-\MPnumerator=\count312
-\makeMPintoPDFobject=\count313
+\MPscratchCnt=\count302
+\MPscratchDim=\dimen163
+\MPnumerator=\count303
+\makeMPintoPDFobject=\count304
 \everyMPtoPDFconversion=\toks34
 ) (C:\Program Files\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
@@ -222,33 +197,26 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 (C:\Program Files\MiKTeX\tex/latex/00miktex\epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-LaTeX Font Info:    Trying to load font information for U+msa on input line 30.
+Overfull \hbox (3.23897pt too wide) in paragraph at lines 35--41
+\T1/cmr/m/n/10.95 num-ber has a prime pair de-com-po-si-tion fol-low-ing the Ha
+rdy--Littlewood
+ []
 
+LaTeX Font Info:    Trying to load font information for U+msa on input line 53.
 
 (C:\Program Files\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 30.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 53.
 
 
 (C:\Program Files\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
-Overfull \hbox (496.95894pt too wide) in paragraph at lines 43--45
-[]\T1/cmr/m/n/10.95 The full im-ple-men-ta-tion and data are avail-able at \T1/
-cmtt/m/n/10.95 https://github.com/angualberto/The-Valence-Layer-Algorithm-A-Str
-uctured-Approach-to-Consecutive-Primes\T1/cmr/m/n/10.95 . 
- []
-
-(artigo.toc [1
+) [1
 
 {C:/Users/Andre/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/Andr
-e/AppData/Roaming/MiKTeX/fonts/enc/dvips/cm-super/cm-super-t1.enc}])
-\tf@toc=\write3
-\openout3 = `artigo.toc'.
-
- [2]
-Overfull \hbox (9.2802pt too wide) detected at line 103
+e/AppData/Roaming/MiKTeX/fonts/enc/dvips/cm-super/cm-super-t1.enc}]
+Overfull \hbox (9.2802pt too wide) detected at line 92
 \OMS/cmsy/m/n/12 V \OT1/cmr/m/n/12 = \OMS/cmsy/m/n/12 f\OT1/cmr/m/n/12 1000\OML
 /cmm/m/it/12 ;  \OT1/cmr/m/n/12 500\OML/cmm/m/it/12 ;  \OT1/cmr/m/n/12 200\OML/
 cmm/m/it/12 ;  \OT1/cmr/m/n/12 120\OML/cmm/m/it/12 ;  \OT1/cmr/m/n/12 64\OML/cm
@@ -262,85 +230,81 @@ r/m/n/12 4\OML/cmm/m/it/12 ;  \OT1/cmr/m/n/12 2\OMS/cmsy/m/n/12 g\OML/cmm/m/it/
 12 :
  []
 
-[3] [4{C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/enc/dvips/cm-super/cm-super-
-ts1.enc}] [5]
-<imagens/fractal_analysis.png, id=40, 1293.3921pt x 853.2678pt>
+[2] [3{C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/enc/dvips/cm-super/cm-super-
+ts1.enc}] [4]
+<imagens/fractal_analysis.png, id=32, 1293.3921pt x 853.2678pt>
 File: imagens/fractal_analysis.png Graphic file (type png)
 <use imagens/fractal_analysis.png>
-Package pdftex.def Info: imagens/fractal_analysis.png  used on input line 270.
+Package pdftex.def Info: imagens/fractal_analysis.png  used on input line 257.
 (pdftex.def)             Requested size: 370.49881pt x 244.42073pt.
 
-Overfull \hbox (8.36172pt too wide) in paragraph at lines 283--285
+Overfull \hbox (8.36172pt too wide) in paragraph at lines 270--272
 []\T1/cmr/m/n/12 We gen-er-ated 50,000 con-sec-u-tive primes near $\OT1/cmr/m/n
 /12 10[]$ \T1/cmr/m/n/12 us-ing \T1/cmtt/m/n/12 gmpy2 \T1/cmr/m/n/12 and counte
 d
  []
 
-[6] [7 <./imagens/fractal_analysis.png>]
-<imagens/liouville_cota_epsilon.png, id=51, 867.24pt x 433.62pt>
+[5] [6 <./imagens/fractal_analysis.png>] [7]
+<imagens/liouville_cota_epsilon.png, id=47, 867.24pt x 433.62pt>
 File: imagens/liouville_cota_epsilon.png Graphic file (type png)
 <use imagens/liouville_cota_epsilon.png>
 Package pdftex.def Info: imagens/liouville_cota_epsilon.png  used on input line
- 401.
+ 384.
 (pdftex.def)             Requested size: 390.0pt x 195.00148pt.
- [8]
-<imagens/liouville_envelope_10^8.png, id=56, 867.24pt x 433.62pt>
+<imagens/liouville_envelope_10^8.png, id=48, 867.24pt x 433.62pt>
 File: imagens/liouville_envelope_10^8.png Graphic file (type png)
 <use imagens/liouville_envelope_10^8.png>
 Package pdftex.def Info: imagens/liouville_envelope_10^8.png  used on input lin
-e 412.
+e 395.
 (pdftex.def)             Requested size: 390.0pt x 195.00148pt.
- [9 <./imagens/liouville_cota_epsilon.png>]
-Overfull \hbox (21.78029pt too wide) in paragraph at lines 471--473
-\T1/cmr/bx/n/12 Theorem 1 \T1/cmr/m/n/12 (Equiv-a-lence)\T1/cmr/bx/n/12 . \T1/c
-mr/m/n/12 For non-trivial ze-ros of $\OML/cmm/m/it/12 ^^P\OT1/cmr/m/n/12 (\OML/
-cmm/m/it/12 s\OT1/cmr/m/n/12 )$\T1/cmr/m/n/12 , the con-di-tion $\OML/cmm/m/it/
-12 K\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 s\OT1/cmr/m/n/12 )\OML/cmm/m/it/12 K\OT1/
-cmr/m/n/12 (1 \OMS/cmsy/m/n/12 ^^@
+ [8 <./imagens/liouville_cota_epsilon.png>] [9 <./imagens/liouville_envelope_10
+^8.png>]
+Overfull \hbox (23.77956pt too wide) in paragraph at lines 452--454
+\T1/cmr/bx/n/12 Theorem 4 \T1/cmr/m/n/12 (Equiv-a-lence)\T1/cmr/bx/n/12 . \T1/c
+mr/m/it/12 For non-trivial ze-ros of $\OML/cmm/m/it/12 ^^P\OT1/cmr/m/n/12 (\OML
+/cmm/m/it/12 s\OT1/cmr/m/n/12 )$\T1/cmr/m/it/12 , the con-di-tion $\OML/cmm/m/i
+t/12 K\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 s\OT1/cmr/m/n/12 )\OML/cmm/m/it/12 K\OT
+1/cmr/m/n/12 (1 \OMS/cmsy/m/n/12 ^^@
  []
 
-[10 <./imagens/liouville_envelope_10^8.png>] [11] [12] [13] (artigo.aux)
+[10] [11] [12] (artigo.aux)
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-05-26>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 3176 strings out of 467508
- 44558 string characters out of 5418868
- 457184 words of memory out of 5000000
- 32381 multiletter control sequences out of 15000+600000
- 646687 words of font info for 88 fonts, out of 8000000 for 9000
+ 3069 strings out of 467508
+ 43148 string characters out of 5418868
+ 457757 words of memory out of 5000000
+ 32283 multiletter control sequences out of 15000+600000
+ 644136 words of font info for 80 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  57i,12n,65p,295b,242s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Progra
-m Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKT
-eX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Program Files/MiKTeX/fonts/typ
-e1/public/amsfonts/cm/cmmi6.pfb><C:/Program Files/MiKTeX/fonts/type1/public/ams
-fonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr1
-0.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Pro
-gram Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Program Files/Mi
-KTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Program Files/MiKTeX/fonts/typ
-e1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsf
-onts/cm/cmsy10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy
-8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm10.pfb><
-C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/public/cm-super/sfbx1095.pfb>
-<C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/public/cm-super/sfbx1200.pfb
-><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/public/cm-super/sfbx1440.pf
-b><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/public/cm-super/sfbx1728.p
-fb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/public/cm-super/sfrm0800.
-pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/public/cm-super/sfrm1095
-.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/public/cm-super/sfrm120
-0.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/public/cm-super/sfrm14
-40.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/public/cm-super/sfrm2
-074.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/public/cm-super/sfti
-1095.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/public/cm-super/sft
-i1200.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/public/cm-super/sf
-tt1095.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/public/cm-super/s
-ftt1200.pfb>
-Output written on artigo.pdf (13 pages, 3090134 bytes).
+m Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Program Files/MiKT
+eX/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Program Files/MiKTeX/fonts/type
+1/public/amsfonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsf
+onts/cm/cmr12.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17
+.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Progr
+am Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTe
+X/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX/fonts/type
+1/public/amsfonts/cm/cmsy8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsf
+onts/symbols/msbm10.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/publ
+ic/cm-super/sfbx1095.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/pub
+lic/cm-super/sfbx1200.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/pu
+blic/cm-super/sfbx1440.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/p
+ublic/cm-super/sfbx1728.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1/
+public/cm-super/sfrm0800.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type1
+/public/cm-super/sfrm1095.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/type
+1/public/cm-super/sfrm1200.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/typ
+e1/public/cm-super/sfrm1440.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/ty
+pe1/public/cm-super/sfrm2074.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/t
+ype1/public/cm-super/sfti1200.pfb><C:/Users/Andre/AppData/Roaming/MiKTeX/fonts/
+type1/public/cm-super/sftt1200.pfb>
+Output written on artigo.pdf (12 pages, 3017222 bytes).
 PDF statistics:
- 187 PDF objects out of 1000 (max. 8388607)
+ 163 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  16 words of extra memory for PDF output out of 10000 (max. 10000000)
 
