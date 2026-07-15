@@ -781,6 +781,28 @@ The complete attack operations are:
   \item Verification: $N_1 \bmod p$ (bigint $\bmod$ bigint).
 \end{enumerate}
 
+\subsection{Dictionary-Based Valence Attack}
+
+The practical efficiency of the gap inversion attack resides in the
+fact that the search space is not continuous, but rather mapped by a
+finite \textit{dictionary} of highly probable gaps, defined by the
+valence tool set $\mathcal{G}$.  Since the prime factors
+$p, q_1, q_2 > 2$ are odd, the moduli $N_1$ and $N_2$ are necessarily
+odd, and their difference $\Delta N$ is even and symmetric with respect
+to the congruence classes of the modular group.  The joint
+factorization problem reduces to testing the dictionary elements of
+$\mathcal{G}$:
+\[
+\Delta N \equiv 0 \pmod{g_i}, \quad g_i \in \mathcal{G}
+\]
+
+The density of consecutive gaps on the number line decays rapidly
+(the average gap behaves as $\ln q$).  The search starts with the most
+frequent dictionary keys --- twin gaps $g=2$, cousin gaps $g=4$, and
+sexy gaps $g=6$ --- turning a cryptanalysis problem into a high-speed
+indexed lookup, with break time below $1~\mu\text{s}$ on conventional
+hardware.
+
 \subsection{Experimental Results}
 
 Table~\ref{tab:gap_inversion} shows the attack performance

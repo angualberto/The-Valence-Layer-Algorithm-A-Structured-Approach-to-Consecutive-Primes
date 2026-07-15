@@ -817,6 +817,28 @@ As operações completas do ataque são:
   \item Verificação: $N_1 \bmod p$ (bigint $\bmod$ bigint).
 \end{enumerate}
 
+\subsection{O Ataque por Dicionário de Valências}
+
+A eficiência prática do ataque por inversão de gap reside no fato de
+que o espaço de busca não é contínuo, mas sim mapeado por um
+\textit{dicionário} finito de gaps altamente prováveis, definido pela
+caixa de ferramentas de valência $\mathcal{G}$.  Como os fatores primos
+$p, q_1, q_2 > 2$ são ímpares, os módulos $N_1$ e $N_2$ são
+necessariamente ímpares, e sua diferença $\Delta N$ é par e simétrica
+em relação às classes de congruência do grupo modular.  O problema de
+fatoração conjunta reduz-se a testar os elementos do dicionário
+$\mathcal{G}$:
+\[
+\Delta N \equiv 0 \pmod{g_i}, \quad g_i \in \mathcal{G}
+\]
+
+A densidade de gaps consecutivos na reta numérica decai rapidamente
+(o gap médio comporta-se como $\ln q$).  A busca inicia-se pelas
+chaves mais frequentes do dicionário --- gaps gêmeos $g=2$, primos
+$g=4$ e sensuais $g=6$ --- transformando um problema de criptoanálise
+em uma busca indexada de altíssima velocidade, com tempo de quebra
+inferior a $1~\mu\text{s}$ em hardware convencional.
+
 \subsection{Resultados Experimentais}
 
 A Tabela~\ref{tab:gap_inversion} mostra o desempenho do ataque
