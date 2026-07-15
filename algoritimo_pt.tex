@@ -817,6 +817,20 @@ As operações completas do ataque são:
   \item Verificação: $N_1 \bmod p$ (bigint $\bmod$ bigint).
 \end{enumerate}
 
+\subsection{Alinhamento de Cache e Localidade de Referência}
+
+Para mitigar os gargalos de latência de barramento de memória
+(\textit{Memory Wall}) durante a redução modular em chaves de 2048 bits,
+a estrutura de limbs foi reestruturada sob diretivas de alinhamento
+estático.  Em vez de alocações dinâmicas na heap, o BigInt e o
+dicionário $\mathcal{G}$ são alinhados em fronteiras de 64 bytes
+(\texttt{alignas(64)}), mapeando toda a estrutura em uma única linha
+de cache L1 do processador.  O laço de redução de precisão mista
+torna-se um bloco contíguo sem \textit{cache misses}:
+\[
+\mathtt{struct\ alignas(64)\ \{ uint64\_t\ limbs[64];\ int\ n;\ \}}
+\]
+
 \subsection{O Ataque por Dicionário de Valências}
 
 A eficiência prática do ataque por inversão de gap reside no fato de

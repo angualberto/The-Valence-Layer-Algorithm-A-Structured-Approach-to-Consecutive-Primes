@@ -781,6 +781,19 @@ The complete attack operations are:
   \item Verification: $N_1 \bmod p$ (bigint $\bmod$ bigint).
 \end{enumerate}
 
+\subsection{Cache Alignment and Locality of Reference}
+
+To mitigate memory bus latency (\textit{Memory Wall}) during the
+modular reduction in 2048-bit keys, the limb array was restructured
+under static alignment directives.  Instead of heap allocations, the
+BigInt and the dictionary $\mathcal{G}$ are aligned to 64-byte
+boundaries (\texttt{alignas(64)}), mapping the entire structure into
+a single L1 cache line.  The mixed-precision reduction loop becomes
+a contiguous block with no cache misses:
+\[
+\mathtt{struct\ alignas(64)\ \{ uint64\_t\ limbs[64];\ int\ n;\ \}}
+\]
+
 \subsection{Dictionary-Based Valence Attack}
 
 The practical efficiency of the gap inversion attack resides in the
