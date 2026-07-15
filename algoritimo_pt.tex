@@ -773,23 +773,48 @@ local $g \ll \sqrt{N}$, a complexidade do ataque é linear no tamanho
 do gap observado $\mathcal{O}(g/2)$ — metade do espaço de busca
 original.
 
-\subsection{Implementação com BigInt (concatenação de limbs)}
+\subsection{Implementação Otimizada com BigInt de Precisão Mista}
 
-Para primos acima de 32 bits, $N = p \times q$ excede $2^{64}$.
-Utilizamos uma biblioteca mínima de inteiros grandes por concatenação
-de limbs de 64 bits (\emph{little-endian}):
-
+Para primos que excedem o limite nativo dos registradores ($w > 64$),
+o módulo $N = p \cdot q$ é representado por concatenação de limbs de
+64 bits em formato \textit{little-endian}:
 \[
 N = \sum_{i=0}^{n-1} L_i \cdot 2^{64i},
 \]
-
 onde $n = \lceil \text{bits}(N) / 64 \rceil$.  Com $n \leq 64$
-cobrimos até 4096 bits (RSA-2048).  As operações necessárias são:
+cobrimos até 4096 bits (RSA-2048).
+
+Para avaliar a divisibilidade de $\Delta N$ pelas valências de teste
+$v \in \mathcal{G}$ sem incorrer no custo de uma divisão de múltipla
+precisão completa (Algoritmo D de Knuth), implementamos um esquema de
+redução de precisão mista.  Como toda valência satisfaz $v < 2^{64}$,
+o resto $R = \Delta N \pmod v$ é computado iterativamente do limb mais
+significativo (MSB) ao menos significativo (LSB) utilizando a relação
+de recorrência linear de custo $\mathcal{O}(n)$:
+\[
+R_n = 0,\qquad
+R_i = \bigl( R_{i+1} \cdot 2^{64} + L_i \bigr) \pmod v
+\]
+
+Este design impede que o compilador realize operações de múltiplos
+limbs para divisores de tamanho de palavra de máquina, reduzindo o
+custo de validação de cada candidato a gap a poucos ciclos de clock.
+O código correspondente na biblioteca \texttt{bigint\_min.h} é:
+\begin{verbatim}
+static w64 bi_mod_u64(const BI* a, w64 b) {
+    w128 r = 0;
+    for (int i = a->n-1; i >= 0; i--)
+        r = ((r << 64) | a->l[i]) % b;
+    return (w64)r;
+}
+\end{verbatim}
+
+As operações completas do ataque são:
 \begin{enumerate}
-  \item Subtração ($\Delta N = N_2 - N_1$);
-  \item Módulo por $g$ (64 bits): $\Delta N \bmod g$;
-  \item Divisão por $g$: $p = \Delta N / g$;
-  \item Módulo bigint: $N_1 \bmod p$ (verificação).
+  \item Subtração: $\Delta N = N_2 - N_1$ (bigint -- bigint);
+  \item Módulo misto: $\Delta N \bmod g$ (bigint $\bmod$ u64);
+  \item Divisão mista: $p = \Delta N / g$ (bigint $/$ u64);
+  \item Verificação: $N_1 \bmod p$ (bigint $\bmod$ bigint).
 \end{enumerate}
 
 \subsection{Resultados Experimentais}

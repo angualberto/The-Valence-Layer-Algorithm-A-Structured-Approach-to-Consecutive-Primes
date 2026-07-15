@@ -737,23 +737,48 @@ Since consecutive prime gaps obey the local scale $g \ll \sqrt{N}$,
 the attack complexity is linear in the observed gap size
 $\mathcal{O}(g/2)$ --- half the original search space.
 
-\subsection{BigInt Implementation (Limb Concatenation)}
+\subsection{Optimized Mixed-Precision BigInt Implementation}
 
-For primes above 32 bits, $N = p \times q$ exceeds $2^{64}$.
-We use a minimal big integer library by concatenation
-of 64-bit limbs (\emph{little-endian}):
-
+For primes exceeding the native register limit ($w > 64$),
+the modulus $N = p \cdot q$ is represented by concatenation
+of 64-bit limbs in \textit{little-endian} format:
 \[
 N = \sum_{i=0}^{n-1} L_i \cdot 2^{64i},
 \]
-
 where $n = \lceil \text{bits}(N) / 64 \rceil$.  With $n \leq 64$
-we cover up to 4096 bits (RSA-2048).  The required operations are:
+we cover up to 4096 bits (RSA-2048).
+
+To evaluate the divisibility of $\Delta N$ by test valences
+$v \in \mathcal{G}$ without incurring the cost of a full
+multiple-precision division (Knuth's Algorithm D), we implement a
+mixed-precision reduction scheme.  Since every valence satisfies
+$v < 2^{64}$, the remainder $R = \Delta N \pmod v$ is computed
+iteratively from the most significant limb (MSB) to the least
+significant (LSB) using the linear recurrence of cost $\mathcal{O}(n)$:
+\[
+R_n = 0,\qquad
+R_i = \bigl( R_{i+1} \cdot 2^{64} + L_i \bigr) \pmod v
+\]
+
+This design prevents the compiler from performing multi-limb operations
+for machine-word-sized divisors, reducing the validation cost of each
+gap candidate to a few clock cycles.  The corresponding code in the
+\texttt{bigint\_min.h} library is:
+\begin{verbatim}
+static w64 bi_mod_u64(const BI* a, w64 b) {
+    w128 r = 0;
+    for (int i = a->n-1; i >= 0; i--)
+        r = ((r << 64) | a->l[i]) % b;
+    return (w64)r;
+}
+\end{verbatim}
+
+The complete attack operations are:
 \begin{enumerate}
-  \item Subtraction ($\Delta N = N_2 - N_1$);
-  \item Modulo by $g$ (64 bits): $\Delta N \bmod g$;
-  \item Division by $g$: $p = \Delta N / g$;
-  \item BigInt modulo: $N_1 \bmod p$ (verification).
+  \item Subtraction: $\Delta N = N_2 - N_1$ (bigint -- bigint);
+  \item Mixed modulo: $\Delta N \bmod g$ (bigint $\bmod$ u64);
+  \item Mixed division: $p = \Delta N / g$ (bigint $/$ u64);
+  \item Verification: $N_1 \bmod p$ (bigint $\bmod$ bigint).
 \end{enumerate}
 
 \subsection{Experimental Results}
