@@ -917,6 +917,49 @@ Bits($p$) & $p$ & gap$_q$ & $\Delta N$ & $\Delta N / p$ & Status \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[H]
+\centering
+\caption{Scaling of methods: trial division and Fermat grow
+exponentially with bit size; gap inversion remains $\mathcal{O}(1)$.}
+\label{fig:escala}
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.95\textwidth,
+    height=0.5\textwidth,
+    xlabel={Prime bits $p$},
+    ylabel={Iterations (log scale)},
+    ymode=log,
+    log basis y={10},
+    grid=both,
+    legend pos=north west,
+    xmin=8, xmax=64,
+    ymin=1, ymax=1e16,
+    ytick={1,100,10000,1e6,1e8,1e10,1e12,1e14,1e16},
+    yticklabels={1,$10^2$,$10^4$,$10^6$,$10^8$,$10^{10}$,$10^{12}$,$10^{14}$,$10^{16}$},
+]
+\addplot[red,mark=square,thick] coordinates {
+    (8,79) (12,1278) (16,24904) (20,356564) (24,5587861) (28,95020993) (32,1497960121)
+};
+\addlegendentry{Trial division ($\sqrt{N}/2$)}
+
+\addplot[blue,mark=triangle,thick] coordinates {
+    (8,3) (12,442) (16,1002) (20,43864) (24,1123861) (28,8585692) (32,744775307)
+};
+\addlegendentry{Fermat ($|p-q|/2$)}
+
+\addplot[black,mark=*,thick] coordinates {
+    (8,3) (12,2) (16,2) (20,3) (24,12) (28,6) (32,3)
+};
+\addlegendentry{Gap inversion ($g/2$)}
+
+\addplot[green!50!black,dashed,thick] coordinates {
+    (40,10) (48,17) (56,9) (64,23)
+};
+\addlegendentry{Gap ($>$32-bit)}
+\end{axis}
+\end{tikzpicture}
+\end{figure}
+
 \subsection{Comparison with Other Methods}
 
 Table~\ref{tab:metodos_comp} compares the gap attack with
