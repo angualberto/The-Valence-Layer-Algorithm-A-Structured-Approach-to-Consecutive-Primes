@@ -4,6 +4,8 @@
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 
 \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}
@@ -43,6 +45,17 @@ The distribution of prime numbers is one of the deepest subjects in
 mathematics.  While the Prime Number Theorem (PNT) describes their
 asymptotic density $\pi(N)\sim N/\ln N$, the local structure---prime
 gaps---exhibits irregularity that is not yet fully understood.
+
+The fundamental equation
+\[
+\boxed{\tfrac12 \times 2 = 1}
+\]
+is the algebraic seed of the symmetry underlying the algorithm:
+$2$ is the first tool in the valence toolbox, $1/2$ is the
+critical-line exponent around which prime gaps oscillate
+($H\approx0.5$) and the Liouville bound
+$L(N)=O(N^{1/2+\varepsilon})$ is centred, and $1$ is the
+primordial unit.
 
 This paper introduces the {\it Valence Layer Algorithm}, a
 deterministic method that:
@@ -359,6 +372,279 @@ $\sqrt{N}$ and $1.36\sqrt{N}$.
 \caption{$|L(N)|$ vs.\ $\sqrt{N}$ and $1.36\sqrt{N}$.}
 \label{fig:liouville_envelope}
 \end{figure}
+
+\section{Resultados dos Filtros Bitwise no Fermat}
+\label{sec:bitwise}
+
+\begin{algorithm}[htbp]
+\caption{Fatoração de Fermat com filtros bitwise empilhados}
+\label{alg:fermat_bitwise}
+\begin{algorithmic}[1]
+\Require $N$ composto ímpar
+\Ensure $p,q$ fatores primos de $N$
+\State $x \gets \lceil\sqrt{N}\rceil$
+\If{$(N \mathbin{\&} 3) = 1$} \Comment{paridade: $N \bmod 4$}
+  \If{$(x \mathbin{\&} 1) = 0$} $x \gets x \mid 1$ \EndIf
+\Else
+  \If{$(x \mathbin{\&} 1) = 1$} $x \gets x + 1$ \EndIf
+\EndIf
+\Loop
+  \State $y^2 \gets x^2 - N$
+  \Comment{Filtro 1: mod 16 (bitwise)}
+  \If{$\bigl(0x213 \gg (y^2 \mathbin{\&} 15)\bigr) \mathbin{\&} 1 = 0$}
+    \State $x \gets x + 2$ \Comment{rejeitado}
+    \State \textbf{continue}
+  \EndIf
+  \Comment{Filtro 2: mod 9}
+  \If{$\bigl(0x093 \gg (y^2 \bmod 9)\bigr) \mathbin{\&} 1 = 0$}
+    \State $x \gets x + 2$
+    \State \textbf{continue}
+  \EndIf
+  \Comment{Filtro 3: mod 5}
+  \If{$\bigl(0x013 \gg (y^2 \bmod 5)\bigr) \mathbin{\&} 1 = 0$}
+    \State $x \gets x + 2$
+    \State \textbf{continue}
+  \EndIf
+  \State $r \gets \lfloor\sqrt{y^2}\rfloor$ \Comment{sqrt só aqui}
+  \If{$r^2 = y^2$}
+    \State \Return $p \gets x - r,\; q \gets x + r$
+  \EndIf
+  \State $x \gets x + 2$
+\EndLoop
+\end{algorithmic}
+\end{algorithm}
+
+A Tabela~\ref{tab:filtros} mostra o impacto de cada filtro de resíduos
+quadráticos na fatoração de $N = 3999971 \times 4999999 = 19999851000029$
+pelo método de Fermat. Cada filtro elimina candidatos a $x$ usando
+apenas operações de bits ($\&$, shift, XOR) antes de chamar
+$\sqrt{y^2}$.
+
+\begin{table}[htbp]
+\centering
+\caption{Rejeição de candidatos por filtros bitwise empilhados.}
+\label{tab:filtros}
+\begin{tabular}{lcrrr}
+\hline
+Filtros & Rejeição & sqrt() calls & Redução \\
+\hline
+Sem filtro (só paridade $N\&3$) & $0\%$ & $13\,933$ & $1\times$ \\
+Mod 16 (bitwise, $x\&15$) & $50.0\%$ & $6\,967$ & $2\times$ \\
+Mod 64 (bitwise, $x\&63$) & $75.0\%$ & $3\,484$ & $4\times$ \\
+Mod 16 + Mod 9 & $83.3\%$ & $2\,323$ & $6\times$ \\
+Mod 16 + Mod 9 + Mod 7 & $92.9\%$ & $996$ & $14\times$ \\
+Mod 64 + Mod 9 + Mod 5 & $95.0\%$ & $698$ & $20\times$ \\
+Mod 64 + Mod 9 + Mod 5 + Mod 7 & $97.9\%$ & $299$ & $47\times$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Propagação de Carry no RC5}
+
+\begin{algorithm}[htbp]
+\caption{Recuperação de $S[i]$ por propagação de carry}
+\label{alg:carry}
+\begin{algorithmic}[1]
+\Require $X$ conhecido (entrada controlada), acesso a $Y = X + S[i]$
+\Ensure $S[i]$ reconstruída
+\State $S_{reconst} \gets 0$
+\For{$bit \gets 0$ \textbf{to} $31$}
+  \State $X_{teste} \gets 2^{bit} - 1$ \Comment{bits $0\ldots bit-1$ em 1}
+  \State $Y_{real} \gets X_{teste} + S[i]$
+  \State $Y_{parcial} \gets X_{teste} + S_{reconst}$
+  \If{$(Y_{real} \gg bit) \mathbin{\&} 1 \neq (Y_{parcial} \gg bit) \mathbin{\&} 1$}
+    \Comment{carry diferente}
+    \State $S_{reconst} \gets S_{reconst} \mid (1 \ll bit)$
+  \EndIf
+\EndFor
+\State \Return $S_{reconst}$
+\end{algorithmic}
+\end{algorithm}
+
+A Tabela~\ref{tab:carry} resume o ataque de espionagem de \emph{carry}
+sobre a subchave $S[2]$ do RC5-32/12/16. Em vez de testar $2^{32}$
+combinações, a dedução bit a bit via propagação de transbordo recupera
+a chave com apenas 32 somas modulares.
+
+\begin{table}[htbp]
+\centering
+\caption{Ataque por propagação de carry no RC5.}
+\label{tab:carry}
+\begin{tabular}{lrc}
+\hline
+Método & Custo & Redução \\
+\hline
+Força bruta ($2^{32}$ chaves) & $4\,294\,967\,296$ testes & $1\times$ \\
+Filtro de travamento ($3.125\%$) & $\approx 1\,342\,177\,280$ & $32\times$ \\
+Dedução linear por carry & $32$ somas & $134\,000\,000\times$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Estrutura do RC5 e Travamento de Rotação}
+
+O RC5-\emph{w}/\emph{r}/\emph{b} cifra blocos de $2w$ bits usando
+$r$ rodadas com rotações dependentes de dados. Cada rodada aplica:
+
+\begin{algorithm}[htbp]
+\caption{RC5: cifragem de uma rodada}
+\label{alg:rc5_round}
+\begin{algorithmic}[1]
+\Require $A,B$ (metades do bloco), $S[2i],S[2i+1]$ (subchaves)
+\Ensure $A',B'$ (próximo estado)
+\State $A \gets \bigl((A \oplus B) \lll B\bigr) + S[2i]$
+  \Comment{rotação por $B \bmod w$}
+\State $B \gets \bigl((B \oplus A) \lll A\bigr) + S[2i+1]$
+\end{algorithmic}
+\end{algorithm}
+
+Quando $B \bmod w = 0$ (probabilidade $1/w = 3{,}125\%$), a rotação
+\textbf{trava}: $\lll 0$ é identidade. Nesse instante:
+\[
+A' = (A \oplus B) + S[2i],
+\]
+expondo a subchave $S[2i]$ a um ataque diferencial.
+
+\subsection{Teste de Avalanche no RC5}
+
+A Tabela~\ref{tab:avalanche} mostra o efeito avalanche do RC5-32/12/16:
+inverter 1 bit do texto claro altera em média $32.58$ dos 64 bits do
+cifrado (ideal: $32$). O histograma (Fig.~\ref{fig:hist_avalanche}) tem
+formato Gaussiano centrado em $33$ bits, com $10$ das $64$ amostras
+atingindo exatamente esse valor.
+
+\begin{table}[htbp]
+\centering
+\caption{Teste de avalanche no RC5-32/12/16 (64 amostras).}
+\label{tab:avalanche}
+\begin{tabular}{lrc}
+\hline
+Estatística & Valor & Ideal \\
+\hline
+Média de bits alterados & $32.58$ & $32.00$ \\
+Desvio padrão (populacional) & $4.05$ & $4.00$ \\
+Mínimo & $21$ & --- \\
+Máximo & $40$ & --- \\
+Desvio absoluto do ideal & $0.58$ & $0.00$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.7\textwidth}
+\centering
+\vspace{0.5cm}
+{\footnotesize
+\begin{verbatim}
+Contagem de bits alterados (64 amostras):
+21 22    25 26    27 28 29 30 31 32 33 34 35 36 37 38 39 40
+ #  #      #  #   ### #### ### ##### ### ##### ########## ###### #### ####### ### ### ###  #
+\end{verbatim}
+}
+\caption{Histograma do efeito avalanche.}
+\label{fig:hist_avalanche}
+\end{minipage}
+\end{figure}
+
+\section{Ataque por Inversão de Gap}
+\label{sec:gap_inversion}
+
+Dados dois módulos RSA consecutivos $N_1 = p \times q_1$ e
+$N_2 = p \times q_2$ (mesmo primo $p$, primos $q$ consecutivos),
+a diferença entre eles revela o fator $p$ diretamente:
+
+\[
+\Delta N = N_2 - N_1 = p \times (q_2 - q_1) = p \times g,
+\]
+
+onde $g$ é o gap entre $q_1$ e $q_2$ (par, pequeno, decomponível
+em $K(s) = 2^s - 1$).  Como $g < 500$ para qualquer magnitude de
+primo, o ataque testa no máximo 250 candidatos.
+
+\subsection{Implementação com BigInt (concatenação de limbs)}
+
+Para primos acima de 32 bits, $N = p \times q$ excede $2^{64}$.
+Utilizamos uma biblioteca mínima de inteiros grandes por concatenação
+de limbs de 64 bits (\emph{little-endian}):
+
+\[
+N = \sum_{i=0}^{n-1} L_i \cdot 2^{64i},
+\]
+
+onde $n = \lceil \text{bits}(N) / 64 \rceil$.  Com $n \leq 64$
+cobrimos até 4096 bits (RSA-2048).  As operações necessárias são:
+\begin{enumerate}
+  \item Subtração ($\Delta N = N_2 - N_1$);
+  \item Módulo por $g$ (64 bits): $\Delta N \bmod g$;
+  \item Divisão por $g$: $p = \Delta N / g$;
+  \item Módulo bigint: $N_1 \bmod p$ (verificação).
+\end{enumerate}
+
+\subsection{Resultados Experimentais}
+
+A Tabela~\ref{tab:gap_inversion} mostra o desempenho do ataque
+para primos de 8 a 256 bits.  O número de passos depende apenas
+do gap $g$, não do tamanho da chave.
+
+\begin{table}[htbp]
+\centering
+\caption{Ataque por inversão de gap: passos vs.\ tamanho do primo.}
+\label{tab:gap_inversion}
+\begin{tabular}{crrrr}
+\hline
+Bits($p$) & $p$ (hex) & $g$ & Passos & Status \\
+\hline
+8  & \texttt{0x83} & 2  & 1   & OK \\
+16 & \texttt{0x8003} & 4  & 2   & OK \\
+24 & \texttt{0x800009} & 4  & 2   & OK \\
+32 & \texttt{0x8000000b} & 20 & 10  & OK \\
+40 & \texttt{0x8000000017} & 6  & 3   & OK \\
+48 & \texttt{0x800000000005} & 32 & 16  & OK \\
+56 & \texttt{0x80000000000003} & 40 & 20  & OK \\
+256 & \texttt{0xdbff\ldots 373f} & 146 & 73 & OK \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Comparação com Outros Métodos}
+
+A Tabela~\ref{tab:metodos_comp} compara o ataque por gap com
+trial division e Fermat para $N = 19999851000029$ (primos de
+32 bits).  O ataque por gap é o único cuja complexidade não
+depende do tamanho dos primos.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparação de métodos de fatoração.}
+\label{tab:metodos_comp}
+\begin{tabular}{lccr}
+\hline
+Método & Iterações & Tempo (C) & Dependência \\
+\hline
+Trial division ($+2$) & $1\,999\,985$ & $0.023$ s & $O(\sqrt{N})$ \\
+Fermat + paridade & $13\,933$ & $0.005$ s & $O(|p-q|)$ \\
+Crivo + OMP & $272\,136$ & $0.060$ s & $O(\sqrt{N}\log\log\sqrt{N})$ \\
+Inversão por gap (2 chaves) & $1$--$250$ & $< 1\,\mu$s & $O(g)$, $g < 500$ \\
+GCD clássico (2 chaves) & $1$ & $< 1\,\mu$s & requer $p$ idêntico \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Limitação}
+
+O ataque exige dois módulos que compartilham o mesmo primo $p$.
+Para um único $N$ isolado, trial division (+2) é o método mais
+rápido para chaves de até 32 bits ($0.023$ s).  Para chaves
+RSA reais ($\ge 1024$ bits), nenhum método de divisão de prova
+é viável---a segurança do RSA permanece intacta para chaves
+bem geradas.
+
+A contribuição teórica do ataque por gap é demonstrar que
+a estrutura de gaps entre primos se preserva multiplicativamente
+nos módulos, e que $\Delta N = p \times g$ reduz o problema de
+fatoração a uma busca sobre gaps pequenos ($O(\log q)$ em vez
+de $O(\sqrt{N})$).
 
 \section{Conclusion}
 
