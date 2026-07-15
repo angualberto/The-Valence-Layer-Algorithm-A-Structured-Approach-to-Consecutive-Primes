@@ -6,6 +6,7 @@
 \usepackage{float}
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
+\usepackage{pgfplots}
 
 \theoremstyle{plain}
 \newtheorem{theorem}{Teorema}
@@ -761,6 +762,72 @@ Bits($p$) & $p$ (hex) & $g$ & Passos & Status \\
 \hline
 \end{tabular}
 \end{table}
+
+\begin{table}[H]
+\centering
+\caption{Detalhamento do ataque ao RSA-256 (256-bit, gap$_q = 52$, 26 passos).}
+\label{tab:rsa256_detalhe}
+\begin{tabular}{crrl}
+\hline
+Passo & $g$ testado & $\Delta N \bmod g$ & Resultado \\
+\hline
+1  & 2  & 0 & divisão exata, $N_1 \bmod p \neq 0$ \\
+2  & 4  & 0 & divisão exata, $N_1 \bmod p \neq 0$ \\
+3  & 6  & 4 & $6 \nmid \Delta N$, rejeitado \\
+4  & 8  & 0 & divisão exata, $N_1 \bmod p \neq 0$ \\
+5  & 10 & 2 & $10 \nmid \Delta N$, rejeitado \\
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+26 & 52 & 0 & $p = \Delta N / 52$ \\[2pt]
+   &    &   & $N_1 \bmod p = 0$ \textbf{→ SUCESSO} \\
+\hline
+\multicolumn{4}{l}{\small $p = \mathtt{0x9248f4346b63f04fba4f80c83c473fc4453228e6514f542f4d07b29dd6dbaac7}$} \\
+\multicolumn{4}{l}{\small $\Delta N = \mathtt{0x1db6d19aa5d04cd031d82628ac3e78f3de0e304ec8841d199ba590480fa49eb06c}$} \\
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\caption{Escalonamento dos métodos: trial division e Fermat crescem
+exponencialmente com o número de bits; a inversão por gap permanece
+$\mathcal{O}(1)$.}
+\label{fig:escala}
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.95\textwidth,
+    height=0.5\textwidth,
+    xlabel={Bits do primo $p$},
+    ylabel={Iterações (escala log)},
+    ymode=log,
+    log basis y={10},
+    grid=both,
+    legend pos=north west,
+    xmin=8, xmax=64,
+    ymin=1, ymax=1e16,
+    ytick={1,100,10000,1e6,1e8,1e10,1e12,1e14,1e16},
+    yticklabels={1,$10^2$,$10^4$,$10^6$,$10^8$,$10^{10}$,$10^{12}$,$10^{14}$,$10^{16}$},
+]
+\addplot[red,mark=square,thick] coordinates {
+    (8,79) (12,1278) (16,24904) (20,356564) (24,5587861) (28,95020993) (32,1497960121)
+};
+\addlegendentry{Trial division ($\sqrt{N}/2$)}
+
+\addplot[blue,mark=triangle,thick] coordinates {
+    (8,3) (12,442) (16,1002) (20,43864) (24,1123861) (28,8585692) (32,744775307)
+};
+\addlegendentry{Fermat ($|p-q|/2$)}
+
+\addplot[black,mark=*,thick] coordinates {
+    (8,3) (12,2) (16,2) (20,3) (24,12) (28,6) (32,3)
+};
+\addlegendentry{Inversão por gap ($g/2$)}
+
+\addplot[green!50!black,dashed,thick] coordinates {
+    (40,10) (48,17) (56,9) (64,23)
+};
+\addlegendentry{Gap ($>$32-bit)}
+\end{axis}
+\end{tikzpicture}
+\end{figure}
 
 \subsection{Comparação com Outros Métodos}
 
