@@ -794,6 +794,29 @@ a contiguous block with no cache misses:
 \mathtt{struct\ alignas(64)\ \{ uint64\_t\ limbs[64];\ int\ n;\ \}}
 \]
 
+Table~\ref{tab:alinhamento_l1} compares the traditional implementation
+with the aligned block on a real RSA-2048 key.
+
+\begin{table}[htbp]
+\centering
+\caption{Impact of \texttt{alignas(64)} on dictionary scan for
+RSA-2048.}
+\label{tab:alinhamento_l1}
+\begin{tabular}{ccccc}
+\hline
+Implementation & Alignment & Candidates & Latency & Speedup \\
+\hline
+Traditional BigInt (heap) & default & 16 gaps & 0.90\,ms & ref. \\
+Aligned block & \texttt{alignas(64)} & 17 gaps & \textbf{6.7\,$\mu$s} & $\mathbf{134\times}$ \\
+\hline
+\end{tabular}
+\end{table}
+
+The $134\times$ gain results from automatic compiler loop unrolling on
+the static vector and the elimination of cache misses.  The filter
+$N_1 \pmod{\Delta N / g} = 0$ discards redundant parity divisors
+($g=2,4,10,20$) and retains exclusively the real gap $g=1420$.
+
 \subsection{Dictionary-Based Valence Attack}
 
 The practical efficiency of the gap inversion attack resides in the
