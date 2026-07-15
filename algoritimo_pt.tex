@@ -697,27 +697,46 @@ Contagem de bits alterados (64 amostras):
 \section{Ataque por Inversão de Gap}
 \label{sec:gap_inversion}
 
-\subsection{Invariância Multiplicativa dos Gaps nos Módulos}
+\subsection{Invariância Multiplicativa e Restrição de Paridade dos Gaps}
 
 Seja a projeção de dois módulos RSA gerados com fatores compartilhados
-$N_1 = p \cdot q_1$ e $N_2 = p \cdot q_2$, onde $q_1, q_2$ são primos
+$N_1 = p \cdot q_1$ e $N_2 = p \cdot q_2$, onde
+$p, q_1, q_2 > 2$ são números primos ímpares e $q_1, q_2$ são vizinhos
 consecutivos na reta numérica.  A diferença absoluta entre os módulos
-é dada pela relação de escala:
+é dada por:
 \[
-\Delta N = |N_2 - N_1| = p \cdot |q_2 - q_1| = p \cdot \text{gap}_q
+\Delta N = |N_2 - N_1| = p \cdot |q_2 - q_1| = p \cdot g
+\]
+onde $g = q_2 - q_1$ representa o gap primo entre os dois fatores
+dinâmicos.
+
+Pela Proposição~1, uma vez que $q_1, q_2 > 2$, o gap $g$ é
+estritamente par ($g \equiv 0 \pmod 2$).  Por consequência, a
+diferença $\Delta N$ gerada no silício é necessariamente par,
+independente da magnitude de $p$.
+
+Esta restrição algébrica impõe uma simetria que otimiza o ataque
+de recuperação em $2\times$.  O espaço de busca para o divisor
+comum $p$ restringe-se ao subgrupo de gaps pares de valência:
+\[
+\mathcal{G} = \{ g_i \in 2\mathbb{Z}^+ \mid 2 \le g_i \le g_{max} \}
+\]
+
+Para um limite prático de $g_{max} = 500$, o algoritmo de inversão
+precisa avaliar no máximo $250$ candidatos ($500/2$),
+uma vez que o passo de varredura é $2$ e todos os valores ímpares
+são descartados \textit{a priori}
+por violação de paridade.  O problema de fatoração conjunta é mapeado
+diretamente na identificação do divisor pelas valências ordenadas de
+$\mathcal{G}$:
+\[
+p = \frac{\Delta N}{g_i}, \quad \text{onde } g_i \in \mathcal{G}
 \]
 
 Como a distribuição de gaps consecutivos de primos obedece à escala
-local $\text{gap}_q \ll \sqrt{N}$, o problema de fatorar o número
-composto $N_1$ é mapeado diretamente na identificação do divisor $p$
-de $\Delta N$ através de uma busca restrita às valências do subgrupo
-de gaps $\mathcal{V}$:
-\[
-p = \frac{\Delta N}{\sum_{i=1}^{m} K(s_i)}
-\]
-
-Isso transforma a barreira de complexidade de sub-exponencial para
-linear no tamanho do gap observado $\mathcal{O}(g)$.
+local $g \ll \sqrt{N}$, a complexidade do ataque é linear no tamanho
+do gap observado $\mathcal{O}(g/2)$ — metade do espaço de busca
+original.
 
 \subsection{Implementação com BigInt (concatenação de limbs)}
 

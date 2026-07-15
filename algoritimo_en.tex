@@ -668,27 +668,41 @@ Bit change count (64 samples):
 \section{Gap Inversion Attack}
 \label{sec:gap_inversion}
 
-\subsection{Multiplicative Invariance of Gaps in Moduli}
+\subsection{Multiplicative Invariance and Parity Restriction of Gaps}
 
 Consider the projection of two RSA moduli generated with shared factors
-$N_1 = p \cdot q_1$ and $N_2 = p \cdot q_2$, where $q_1, q_2$ are consecutive
-primes on the number line.  The absolute difference between the moduli
-is given by the scaling relation:
+$N_1 = p \cdot q_1$ and $N_2 = p \cdot q_2$, where
+$p, q_1, q_2 > 2$ are odd primes and $q_1, q_2$ are consecutive
+neighbors on the number line.  The absolute difference between the
+moduli is:
 \[
-\Delta N = |N_2 - N_1| = p \cdot |q_2 - q_1| = p \cdot \text{gap}_q
+\Delta N = |N_2 - N_1| = p \cdot |q_2 - q_1| = p \cdot g
+\]
+where $g = q_2 - q_1$ is the prime gap between the two dynamic factors.
+
+By Proposition~1, since $q_1, q_2 > 2$, the gap $g$ is strictly even
+($g \equiv 0 \pmod 2$).  Consequently, $\Delta N$ generated in silicon
+is necessarily even, regardless of the magnitude of $p$.
+
+This algebraic constraint imposes a symmetry that optimizes the
+recovery attack by $2\times$.  The search space for the common divisor
+$p$ is restricted to the subgroup of even valence gaps:
+\[
+\mathcal{G} = \{ g_i \in 2\mathbb{Z}^+ \mid 2 \le g_i \le g_{max} \}
 \]
 
-Since the distribution of consecutive prime gaps obeys the local
-scale $\text{gap}_q \ll \sqrt{N}$, the problem of factoring the
-composite number $N_1$ is directly mapped to the identification of the divisor $p$
-of $\Delta N$ through a search restricted to the valences of the gap
-subgroup $\mathcal{V}$:
+For a practical bound $g_{max} = 500$, the inversion algorithm needs
+to evaluate at most $125$ candidate division paths, since all odd
+values are discarded \textit{a priori} by parity violation.  The joint
+factorization problem is mapped directly onto divisor identification
+through the ordered valences of $\mathcal{G}$:
 \[
-p = \frac{\Delta N}{\sum_{i=1}^{m} K(s_i)}
+p = \frac{\Delta N}{g_i}, \qquad g_i \in \mathcal{G}
 \]
 
-This transforms the complexity barrier from sub-exponential to
-linear in the size of the observed gap $\mathcal{O}(g)$.
+Since consecutive prime gaps obey the local scale $g \ll \sqrt{N}$,
+the attack complexity is linear in the observed gap size
+$\mathcal{O}(g/2)$ --- half the original search space.
 
 \subsection{BigInt Implementation (Limb Concatenation)}
 
@@ -773,9 +787,14 @@ The security of RSA for well-generated, independent keys (without
 prime reuse) remains intact.
 
 The theoretical contribution of the gap attack is to demonstrate that
-the structure of gaps between primes is preserved multiplicatively
-in the moduli, and that $\Delta N = p \times g$ reduces the
-factorization problem to a search over small gaps ($O(\log q)$ instead
+the gap between the RSA products ($\Delta N = N_2 - N_1$) equals the
+product of the shared prime $p$ and the gap between the consecutive
+primes ($\text{gap}_q = q_2 - q_1$):
+\[
+\Delta N = p \times \text{gap}_q
+\]
+This relation reduces the factorization problem to a search over
+small gaps ($O(\log q)$ instead
 of $O(\sqrt{N})$).
 
 \section{Conclusion}
