@@ -697,6 +697,41 @@ Contagem de bits alterados (64 amostras):
 \section{Ataque por Inversão de Gap}
 \label{sec:gap_inversion}
 
+\subsection{Harmonia de Simetrias: Fermat Unidimensional e o Gap Linear}
+
+A estrutura algébrica de um módulo isolado $N = p \cdot q$ é
+intrinsecamente governada pela simetria bilateral de Fermat em relação
+à média aritmética de seus fatores, definida pelo par simétrico
+$(x, y) \in \mathbb{Z}^2$:
+\[
+x = \frac{p+q}{2}, \quad
+y = \frac{q-p}{2} \implies
+N = x^2 - y^2
+\]
+
+A paridade do centro de simetria $x$ é determinada de forma rígida
+pela congruência de $N \pmod 4$.  Se $N \equiv 1 \pmod 4$, então $x$ é
+necessariamente ímpar; se $N \equiv 3 \pmod 4$, $x$ é par.  Esta
+restrição geométrica permite inicializar o crivo de Fermat eliminando
+metade dos candidatos a $x$ de forma imediata
+\cite{riesel1994}.
+
+Ao estendermos esta análise para dois módulos consecutivos
+compartilhando o fator $p$, a saber, $N_1 = p \cdot q_1$ e
+$N_2 = p \cdot q_2$, as simetricidades individuais colapsam na relação
+de diferença aditiva:
+\[
+\Delta N = N_2 - N_1 = p \cdot (q_2 - q_1) = p \cdot g
+\]
+
+Como ambos $q_1, q_2 > 2$ são ímpares, os desvios de Fermat de cada
+módulo individual forçam o gap linear $g$ a herdar a propriedade de
+paridade estrita do subgrupo par ($g \equiv 0 \pmod 2$).  Assim, a
+dinâmica do ataque de inversão de gap não apenas se beneficia da
+simetria interna de Fermat de cada chave, mas utiliza a paridade
+induzida do gap $g$ para reduzir o espaço de busca de fatores comuns
+pela metade ($\Delta g = 2$).
+
 \subsection{Invariância Multiplicativa e Restrição de Paridade dos Gaps}
 
 Seja a projeção de dois módulos RSA gerados com fatores compartilhados

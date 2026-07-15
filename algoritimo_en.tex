@@ -668,6 +668,38 @@ Bit change count (64 samples):
 \section{Gap Inversion Attack}
 \label{sec:gap_inversion}
 
+\subsection{Harmony of Symmetries: One-Dimensional Fermat and the Linear Gap}
+
+The algebraic structure of an isolated modulus $N = p \cdot q$ is
+intrinsically governed by Fermat's bilateral symmetry about the
+arithmetic mean of its factors, defined by the symmetric pair
+$(x, y) \in \mathbb{Z}^2$:
+\[
+x = \frac{p+q}{2}, \quad
+y = \frac{q-p}{2} \implies
+N = x^2 - y^2
+\]
+
+The parity of the symmetry center $x$ is rigidly determined by the
+congruence $N \pmod 4$.  If $N \equiv 1 \pmod 4$, then $x$ is
+necessarily odd; if $N \equiv 3 \pmod 4$, $x$ is even.  This geometric
+constraint allows the Fermat sieve to be initialized by immediately
+eliminating half of the $x$ candidates \cite{riesel1994}.
+
+Extending this analysis to two consecutive moduli sharing the factor
+$p$, namely $N_1 = p \cdot q_1$ and $N_2 = p \cdot q_2$, the individual
+symmetries collapse into the additive difference relation:
+\[
+\Delta N = N_2 - N_1 = p \cdot (q_2 - q_1) = p \cdot g
+\]
+
+Since both $q_1, q_2 > 2$ are odd, the Fermat deviations of each
+individual modulus force the linear gap $g$ to inherit the strict
+parity property of the even subgroup ($g \equiv 0 \pmod 2$).  Thus,
+the gap inversion attack not only benefits from the internal Fermat
+symmetry of each key, but also uses the induced parity of the gap $g$
+to reduce the common factor search space by half ($\Delta g = 2$).
+
 \subsection{Multiplicative Invariance and Parity Restriction of Gaps}
 
 Consider the projection of two RSA moduli generated with shared factors
