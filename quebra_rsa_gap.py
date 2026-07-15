@@ -22,10 +22,12 @@ def isprime(n):
         else: return False
     return True
 
-def ataque_gap(N1, N2):
+def ataque_gap(N1, N2, prime_bits=None):
     if N2 < N1: N1, N2 = N2, N1
     delta = N2 - N1
-    bits = max(N1.bit_length(), N2.bit_length())
+    if prime_bits is None:
+        prime_bits = N1.bit_length() // 2
+    max_gap = max(500, prime_bits * 2)
     print(f"N1       = {N1:#x}")
     print(f"N2       = {N2:#x}")
     print(f"N1 bits  = {N1.bit_length()}")
@@ -33,7 +35,7 @@ def ataque_gap(N1, N2):
     print(f"Delta    = {delta:#x}")
     print()
     t0 = time.time()
-    for g in range(2, 502, 2):
+    for g in range(2, max_gap + 2, 2):
         if delta % g != 0: continue
         p = delta // g
         if N1 % p == 0:
@@ -49,7 +51,7 @@ def ataque_gap(N1, N2):
             print(f"N1 % p   = {N1 % p}")
             print(f"N2 % p   = {N2 % p}")
             return p
-    print("FALHA: nenhum gap 2..500 funcionou")
+    print(f"FALHA: nenhum gap 2..{max_gap} funcionou")
     return None
 
 def gera_par(bits):
