@@ -376,6 +376,47 @@ $\sqrt{N}$ and $1.36\sqrt{N}$.
 \section{Resultados dos Filtros Bitwise no Fermat}
 \label{sec:bitwise}
 
+\subsection{Teoria dos Resíduos Modulares e a Máscara de Bits de Fermat}
+
+O método clássico de Fermat busca resolver a equação diofantina
+$x^2 - y^2 = N$, o que implica que o determinante intermediário
+$\Phi(x) = x^2 - N = y^2$ deve ser um quadrado perfeito sobre
+$\mathbb{Z}$.
+
+Definimos o conjunto de resíduos quadráticos de um módulo $m$ como:
+\[
+\mathcal{Q}_m = \{ a \in \mathbb{Z}_m \mid \exists k \in \mathbb{Z}_m
+\text{ tal que } k^2 \equiv a \pmod m \}
+\]
+
+Para qualquer escolha de $m$, a condição necessária para que um
+candidato $x$ produza um quadrado perfeito é que sua projeção satisfaça:
+\[
+\Phi(x) \pmod m \in \mathcal{Q}_m
+\]
+
+Para $m = 16$, o conjunto de resíduos válidos é extremamente restrito:
+$\mathcal{Q}_{16} = \{0, 1, 4, 9\}$.  Definimos a função característica
+do filtro $\chi_{\mathcal{Q}_{16}}: \mathbb{Z}_{16} \to \{0, 1\}$
+associada à constante de máscara de controle
+$\mathtt{MASK}_{16} = \mathtt{0x213}_{16}$:
+\[
+\chi_{\mathcal{Q}_{16}}(z) =
+\bigl( \lfloor \mathtt{MASK}_{16} \cdot 2^{-z} \rfloor \bigr) \pmod 2
+\]
+
+No nível do registrador do processador, a avaliação de transição
+reduz-se à operação bitwise com custo $\mathcal{O}(1)$:
+\[
+f(x) = \bigl( \mathtt{0x213} \gg ((x^2 - N) \ \& \ 15) \bigr) \ \& \ 1
+\]
+
+Se $f(x) = 0$, o candidato é rejeitado instantaneamente sem necessidade
+de invocar a operação de ponto flutuante $\sqrt{\cdot}$.  Para $m = 64$,
+o filtro estende-se de forma isomórfica utilizando o conjunto de resíduos
+$\mathcal{Q}_{64}$ de 12 elementos mapeados na máscara de 64 bits
+$\mathtt{MASK}_{64} = \mathtt{0x0282410120101113}_{16}$.
+
 \begin{algorithm}[htbp]
 \caption{Fatoração de Fermat com filtros bitwise empilhados}
 \label{alg:fermat_bitwise}
@@ -441,30 +482,42 @@ Mod 64 + Mod 9 + Mod 5 + Mod 7 & $97.9\%$ & $299$ & $47\times$ \\
 
 \subsection{Propagação de Carry no RC5}
 
-\begin{algorithm}[htbp]
-\caption{Recuperação de $S[i]$ por propagação de carry}
-\label{alg:carry}
-\begin{algorithmic}[1]
-\Require $X$ conhecido (entrada controlada), acesso a $Y = X + S[i]$
-\Ensure $S[i]$ reconstruída
-\State $S_{reconst} \gets 0$
-\For{$bit \gets 0$ \textbf{to} $31$}
-  \State $X_{teste} \gets 2^{bit} - 1$ \Comment{bits $0\ldots bit-1$ em 1}
-  \State $Y_{real} \gets X_{teste} + S[i]$
-  \State $Y_{parcial} \gets X_{teste} + S_{reconst}$
-  \If{$(Y_{real} \gg bit) \mathbin{\&} 1 \neq (Y_{parcial} \gg bit) \mathbin{\&} 1$}
-    \Comment{carry diferente}
-    \State $S_{reconst} \gets S_{reconst} \mid (1 \ll bit)$
-  \EndIf
-\EndFor
-\State \Return $S_{reconst}$
-\end{algorithmic}
-\end{algorithm}
+\subsection{Modelagem Algébrica do Ataque por Correlação de Carry}
 
-A Tabela~\ref{tab:carry} resume o ataque de espionagem de \emph{carry}
-sobre a subchave $S[2]$ do RC5-32/12/16. Em vez de testar $2^{32}$
-combinações, a dedução bit a bit via propagação de transbordo recupera
-a chave com apenas 32 somas modulares.
+O algoritmo simétrico RC5 opera no produto cartesiano de anéis truncados
+$\mathbb{Z}_{2^w} \times \mathbb{Z}_{2^w}$.  Definimos o operador de
+carry bit a bit $c_k$ para a adição de duas palavras de máquina
+$X, Y \in \mathbb{Z}_{2^w}$ pela recorrência lógica:
+\begin{align*}
+c_0 &= 0 \\
+c_{k+1} &= (x_k \wedge y_k) \vee (x_k \wedge c_k) \vee (y_k \wedge c_k)
+\end{align*}
+
+Quando a quantidade de rotação de uma rodada cai no estado de
+identidade ($B \equiv 0 \pmod w$), o endomorfismo de rotação
+$\rho(A, B)$ degenera, resultando na simplificação aditiva linear:
+\[
+A' = (A \oplus B) + S[2i] \pmod{2^w}
+\]
+
+Seja $X = A \oplus B$ uma entrada conhecida e controlável.  A derivada
+parcial discreta do bit de saída na posição $k+1$ em relação à
+perturbação unitária $\Delta X = 2^k$ é dada por:
+\[
+\frac{\partial A'}{\partial x_k} \implies
+s_k = c_{k+1} \oplus x_k \oplus (A')_k
+\]
+
+Esta correlação direta de fase permite o isolamento do termo de carry
+$c_{k+1}$ e a reconstrução indutiva linear dos bits da subchave
+$S[2i]$ da direita para a esquerda.  A complexidade do ataque é
+reduzida de forma definitiva de uma barreira exponencial para uma
+varredura estritamente linear de tamanho de palavra:
+\[
+\mathcal{O}(2^w) \longrightarrow \mathcal{O}(w)
+\]
+
+A Tabela~\ref{tab:carry} resume o ganho prático para o RC5-32/12/16.
 
 \begin{table}[htbp]
 \centering
@@ -550,17 +603,27 @@ Contagem de bits alterados (64 amostras):
 \section{Ataque por Inversão de Gap}
 \label{sec:gap_inversion}
 
-Dados dois módulos RSA consecutivos $N_1 = p \times q_1$ e
-$N_2 = p \times q_2$ (mesmo primo $p$, primos $q$ consecutivos),
-a diferença entre eles revela o fator $p$ diretamente:
+\subsection{Invariância Multiplicativa dos Gaps nos Módulos}
 
+Seja a projeção de dois módulos RSA gerados com fatores compartilhados
+$N_1 = p \cdot q_1$ e $N_2 = p \cdot q_2$, onde $q_1, q_2$ são primos
+consecutivos na reta numérica.  A diferença absoluta entre os módulos
+é dada pela relação de escala:
 \[
-\Delta N = N_2 - N_1 = p \times (q_2 - q_1) = p \times g,
+\Delta N = |N_2 - N_1| = p \cdot |q_2 - q_1| = p \cdot \text{gap}_q
 \]
 
-onde $g$ é o gap entre $q_1$ e $q_2$ (par, pequeno, decomponível
-em $K(s) = 2^s - 1$).  Como $g < 500$ para qualquer magnitude de
-primo, o ataque testa no máximo 250 candidatos.
+Como a distribuição de gaps consecutivos de primos obedece à escala
+local $\text{gap}_q \ll \sqrt{N}$, o problema de fatorar o número
+composto $N_1$ é mapeado diretamente na identificação do divisor $p$
+de $\Delta N$ através de uma busca restrita às valências do subgrupo
+de gaps $\mathcal{V}$:
+\[
+p = \frac{\Delta N}{\sum_{i=1}^{m} K(s_i)}
+\]
+
+Isso transforma a barreira de complexidade de sub-exponencial para
+linear no tamanho do gap observado $\mathcal{O}(g)$.
 
 \subsection{Implementação com BigInt (concatenação de limbs)}
 
