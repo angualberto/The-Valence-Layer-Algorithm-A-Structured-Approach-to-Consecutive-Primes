@@ -604,7 +604,7 @@ Dedução linear por carry & $32$ somas & $134\,000\,000\times$ \\
 O RC5-\emph{w}/\emph{r}/\emph{b} cifra blocos de $2w$ bits usando
 $r$ rodadas com rotações dependentes de dados. Cada rodada aplica:
 
-\begin{algorithm}[htbp]
+\begin{algorithm}[H]
 \caption{RC5: cifragem de uma rodada}
 \label{alg:rc5_round}
 \begin{algorithmic}[1]
@@ -779,8 +779,7 @@ de $O(\sqrt{N})$).
 O Algoritmo de Camada de Valência fornece:
 \begin{enumerate}
   \item Um método prático e escalável para encontrar primos consecutivos
-    e decompor seus gaps na sequência de inteiros
-    $\{1000,500,200,\dots,2\}$;
+    e decompor seus gaps na sequência de valências $\mathcal{V}$;
   \item Confirmação numérica do TNP, autossimilaridade dos gaps
     ($H\approx0.5$) e distribuição uniforme dos últimos dígitos em
     40 classes de resíduos;
