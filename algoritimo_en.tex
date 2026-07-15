@@ -803,6 +803,21 @@ sexy gaps $g=6$ --- turning a cryptanalysis problem into a high-speed
 indexed lookup, with break time below $1~\mu\text{s}$ on conventional
 hardware.
 
+\noindent\textbf{Example} (Transition between symmetric products):
+\[
+\begin{array}{c|c|c|c|c}
+p & q_1 & q_2 & \Delta N & \Delta N = p \times g \\ \hline
+23 & 23 & 29 & 138 & 138 = 23 \times 6 \\
+29 & 23 & 29 & 174 & 174 = 29 \times 6
+\end{array}
+\]
+The gap $g = 6$ (even, sexy) is preserved regardless of the base prime
+$p$ (23 or 29).  The direct transition between perfect squares:
+\[
+841 - 529 = 312 = 29^2 - 23^2 = (29-23)(29+23) = 6 \times 52
+\]
+confirms the Euclidean invariance of the gap structure.
+
 \subsection{Experimental Results}
 
 Table~\ref{tab:gap_inversion} shows the attack performance

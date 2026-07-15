@@ -839,6 +839,26 @@ $g=4$ e sensuais $g=6$ --- transformando um problema de criptoanálise
 em uma busca indexada de altíssima velocidade, com tempo de quebra
 inferior a $1~\mu\text{s}$ em hardware convencional.
 
+\noindent\textbf{Exemplo} (Transição entre produtos simétricos):
+Seja $p = 23$, $q_1 = 23$, $q_2 = 29$:
+\[
+N_1 = 23 \times 23 = 529,\quad
+N_2 = 23 \times 29 = 667,\quad
+\Delta N = 138 = 23 \times 6
+\]
+Para $p = 29$, $q_1 = 23$, $q_2 = 29$:
+\[
+N_1 = 23 \times 29 = 667,\quad
+N_2 = 29 \times 29 = 841,\quad
+\Delta N = 174 = 29 \times 6
+\]
+O gap $g = 6$ (par, sensual) preserva-se independentemente do primo
+base $p$ (23 ou 29).  A transição direta entre quadrados perfeitos:
+\[
+841 - 529 = 312 = 29^2 - 23^2 = (29-23)(29+23) = 6 \times 52
+\]
+confirma a invariância euclidiana da estrutura de gaps.
+
 \subsection{Resultados Experimentais}
 
 A Tabela~\ref{tab:gap_inversion} mostra o desempenho do ataque
