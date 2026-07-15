@@ -818,6 +818,27 @@ Bits($p$) & $p$ (hex) & $g$ & Passos & Status \\
 \end{tabular}
 \end{table}
 
+\begin{table}[htbp]
+\centering
+\caption{Gap dos produtos $\Delta N = p \times \text{gap}_q$ confirmado
+em todas as escalas.}
+\label{tab:gap_produto}
+\begin{tabular}{crrrlc}
+\hline
+Bits($p$) & $p$ & gap$_q$ & $\Delta N$ & $\Delta N / p$ & Status \\
+\hline
+8  & 131 & 2  & 262            & 2  & OK \\
+16 & 32771 & 4  & 131084          & 4  & OK \\
+24 & 8388617 & 4  & 33554468         & 4  & OK \\
+32 & 2147483659 & 20 & 42949673180       & 20 & OK \\
+40 & 549755813911 & 6  & 3298534883466     & 6  & OK \\
+48 & 140737488355333 & 32 & 4503599627370656   & 32 & OK \\
+56 & 36028797018963971 & 40 & 1441151880758558840 & 40 & OK \\
+256 & \texttt{0x9248f4\ldots aac7} & 52 & \texttt{0x1db6d1\ldots b06c} & 52 & OK \\
+\hline
+\end{tabular}
+\end{table}
+
 \begin{table}[H]
 \centering
 \caption{Detalhamento do ataque ao RSA-256 (256-bit, gap$_q = 52$, 26 passos).}
