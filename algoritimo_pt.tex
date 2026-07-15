@@ -869,10 +869,71 @@ fatores próximos.  A segurança do RSA para chaves bem geradas e
 independentes (sem reuso de primos) permanece intacta.
 
 A contribuição teórica do ataque por gap é demonstrar que
-a estrutura de gaps entre primos se preserva multiplicativamente
-nos módulos, e que $\Delta N = p \times g$ reduz o problema de
+o gap entre os produtos RSA ($\Delta N = N_2 - N_1$) é igual ao
+produto do primo compartilhado $p$ pelo gap entre os primos
+consecutivos ($\text{gap}_q = q_2 - q_1$):
+\[
+\Delta N = p \times \text{gap}_q
+\]
+Essa relação reduz o problema de
 fatoração a uma busca sobre gaps pequenos ($O(\log q)$ em vez
 de $O(\sqrt{N})$).
+
+\section{Gap de Semiprimos via Fermat Bitwise}
+\label{sec:semiprime_gap}
+
+Para um semiprimo $N = p \times q$ com $p,q$ primos ímpares, o
+método de Fermat encontra $x = (p+q)/2$ e $y = (q-p)/2$, de modo
+que o gap entre os fatores é:
+\[
+\text{gap} = q - p = 2y
+\]
+
+Combinando a busca de Fermat com os filtros bitwise empilhados
+(mod 64, mod 9, mod 5, mod 7), podemos fatorar $N$ e obter o gap
+com alta eficiência.  A Tabela~\ref{tab:semiprime_gap} mostra os
+resultados para semiprimos de diversos tamanhos.
+
+\begin{table}[htbp]
+\centering
+\caption{Gap de semiprimos encontrados por Fermat bitwise.}
+\label{tab:semiprime_gap}
+\begin{tabular}{crrrrr}
+\hline
+$p$ & $q$ & $N = p\times q$ & gap $q-p$ & candidatos & chamadas $\sqrt{\cdot}$ \\
+\hline
+$10\,007$ & $10\,009$ & $100\,160\,063$ & $2$ & $1$ & $1$ \\
+$65\,521$ & $65\,537$ & $4\,294\,049\,777$ & $16$ & $1$ & $1$ \\
+$100\,003$ & $100\,019$ & $10\,002\,200\,057$ & $16$ & $1$ & $1$ \\
+$500\,009$ & $500\,029$ & $250\,019\,000\,261$ & $20$ & $1$ & $1$ \\
+$999\,983$ & $1\,000\,003$ & $999\,985\,999\,949$ & $20$ & $1$ & $1$ \\
+$3\,999\,971$ & $4\,999\,999$ & $19\,999\,851\,000\,029$ & $1\,000\,028$ & $13\,933$ & $299$ \\
+$10\,000\,019$ & $10\,000\,079$ & $100\,000\,980\,001\,501$ & $60$ & $1$ & $1$ \\
+\hline
+\end{tabular}
+\end{table}
+
+Para gaps pequenos ($\lesssim 100$), a raiz quadrada de $N$ já está
+entre $p$ e $q$: Fermat encontra os fatores em uma única iteração,
+sem necessidade de filtragem.  Já para gaps grandes --- como
+$1\,000\,028$ entre $3\,999\,971$ e $4\,999\,999$ --- o algoritmo
+precisa percorrer $13\,933$ candidatos, dos quais $97{,}85\%$ são
+descartados pelos filtros bitwise, resultando em apenas $299$
+chamadas a $\sqrt{\cdot}$.
+
+Uma vez obtido o gap, ele pode ser decomposto pela ferramentaria
+$\mathcal{V}$ via algoritmo guloso.  Para gap $= 60$:
+\[
+60 = 1\times60 = 1\times(34 + 2\times 8 + 2\times 4 + 2)
+\]
+usando as ferramentas $\{60, 34, 8, 4, 2\} \subset \mathcal{V}$.
+Para gap $= 1\,000\,028$:
+\[
+1\,000\,028 = 1000\times1000 + 28 = 1000\times1000 + 1\times28
+\]
+A decomposição segue sempre o princípio de peça maior primeiro,
+reduzindo o gap residual a zero (pois $2\in\mathcal{V}$ garante
+a cobertura de todo gap par).
 
 \section{Conclusão}
 
