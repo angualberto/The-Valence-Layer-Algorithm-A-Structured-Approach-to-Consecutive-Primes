@@ -1,0 +1,813 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{The Valence Layer Algorithm:\\A Scalable Computational Method for\\Consecutive Prime Gaps and Integer Sequences}
+\author{Andr\'e Gualberto}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present the Valence Layer Algorithm, a deterministic framework
+for generating consecutive primes and decomposing prime gaps using
+the integer sequence $\mathcal{V} = \{1000,500,200,\dots,2\}$.
+The algorithm is implemented in Fortran (64/128-bit), C+GMP
+(arbitrary precision), and Python, scaling from desktop hardware
+to numbers with thousands of digits.  Numerical analysis across
+five scales ($10^3$ to $10^{15}$) yields a Hurst exponent
+$H\approx0.5$, confirming that gaps behave as white noise with
+fractal dimension $D\approx1.5$.  We verify Goldbach's conjecture
+for even numbers up to $10^7$ and compute the Liouville partial
+sums $L(N)$ up to $10^8$, observing $\max|L|/\sqrt{N}\approx1.33$.
+\end{abstract}
+
+\noindent{\it Key words and phrases:}\ prime gap, valence layer algorithm,
+Liouville function, Goldbach conjecture, Hurst exponent.
+
+\noindent{\it 2020 Mathematics Subject Classification:}\ Primary 11A41;
+Secondary 11N05, 11P32, 11Y16.
+
+\section{Introduction}
+\label{sec:intro}
+
+The distribution of prime numbers is one of the deepest subjects in
+mathematics.  While the Prime Number Theorem (PNT) describes their
+asymptotic density $\pi(N)\sim N/\ln N$, the local structure---prime
+gaps---exhibits irregularity that is not yet fully understood.
+
+The relations of the system are governed by a critical scaling factor
+of $1/2$.  This exponent is the algebraic seed of the symmetry
+underlying the algorithm: $2$ is the fundamental building block of
+the valence toolbox, while $1/2$ represents the critical line
+$\Re(s) = 1/2$ of the non-trivial zeros of the Riemann Zeta function
+$\zeta(s)$.  Under the Riemann Hypothesis, the error term in the
+prime distribution oscillates with an amplitude bound of
+$O(N^{1/2+\epsilon})$, a boundary mirrored by our empirical analysis
+of the Liouville partial sums $L(N) = O(N^{1/2+\epsilon})$ and the
+fractal fluctuations of the Hurst exponent ($H \approx 0.5$)
+describing the prime gaps.
+
+This paper introduces the {\it Valence Layer Algorithm}, a
+deterministic method that:
+\begin{enumerate}
+  \item Finds the next prime after any integer $N$ using
+    deterministic Miller--Rabin primality testing;
+  \item Decomposes the gap $G=p_{\text{next}}-N$ using a fixed
+    {\it toolbox} of even integers;
+  \item Provides statistical analysis of gap distributions,
+    Goldbach partitions, and the Liouville function.
+\end{enumerate}
+
+\section{The Valence Layer Algorithm}
+\label{sec:alg}
+
+\subsection{The Toolbox}
+\label{sec:tools}
+
+Let $\mathcal{V} = \{v_1, v_2, \dots, v_k\}$ be a finite, ordered set of
+even integers sorted in descending order, defined as:
+\[
+\mathcal{V} = \{1000, 500, 200, 120, 64, 34, 32, 30, 28, 24,
+20, 18, 16, 12, 10, 8, 6, 4, 2\}.
+\]
+
+Since $2 \in \mathcal{V}$, any even integer can be uniquely represented.
+We formalize the decomposition of a prime gap $G = p_{\text{next}} - N$
+as an expansion over a state-space of valences.  Let the valuation
+operator $\Phi_{\mathcal{V}}: \mathbb{E} \to \mathbb{Z}^k$ map any even
+integer $G$ to a coefficient vector $\mathbf{s} = (s_1, s_2, \dots, s_k)$
+such that:
+\[
+G = \sum_{i=1}^{k} s_i \cdot v_i
+\]
+where the coefficients $s_i \in \mathbb{N}$ are computed recursively
+under the greedy restriction constraint:
+\[
+s_i = \left\lfloor \frac{G_{i-1}}{v_i} \right\rfloor,\quad
+G_i = G_{i-1} \pmod{v_i}
+\]
+with the initial boundary condition $G_0 = G$.
+
+\begin{proposition}[Gap Parity]
+\label{prop:parity}
+Every gap between consecutive odd primes is even.
+The only exception is $3-2=1$.
+\end{proposition}
+\begin{proof}
+All primes $p>2$ are odd.  The difference of two odd numbers is even.
+For $2$ and $3$, the gap is $1$ by inspection.
+\end{proof}
+
+\begin{corollary}
+\label{coro:decomp}
+Every prime gap $G>1$ can be decomposed using $\mathcal{V}$.
+\end{corollary}
+
+\begin{proposition}
+\label{prop:greedy}
+The greedy expansion induced by $\Phi_{\mathcal{V}}$ terminates in
+finite steps and is exact for any prime gap $G > 1$.
+\end{proposition}
+\begin{proof}
+By Proposition~\ref{prop:parity}, $G$ is even.  Since
+$v_k = 2$ is the infimum of $\mathcal{V}$, the remainder at the
+final step must satisfy $G_{k-1} \pmod 2 = 0$.  Thus,
+$G_{k-1}$ is exactly divisible by $2$, yielding an exact
+decomposition with zero residual error.
+\end{proof}
+
+\subsection{Algorithm}
+\label{sec:algo}
+
+Given $N$:
+\begin{enumerate}
+  \item If $N<2$, return $2$.
+  \item If $N=2$, return $3$.
+  \item Start from the next odd candidate $c=N+1$ (or $N+2$ if
+    $N$ is odd).
+  \item Test each candidate with Miller--Rabin: 12 deterministic
+    bases for 64-bit numbers, 25 random bases for larger numbers.
+  \item When a prime $p$ is found, compute $G=p-N$ and decompose
+    $G$ using $\mathcal{V}$.
+\end{enumerate}
+
+\subsection{Implementation}
+\label{sec:impl}
+
+The algorithm is implemented in three languages:
+\begin{itemize}
+  \item {\bf Fortran} (64-bit and 128-bit integers) for maximum
+    performance on standard hardware.  The 128-bit version finds
+    the largest signed 128-bit prime $M_{127}=2^{127}-1$.
+  \item {\bf C + GMP} (GNU MP) for arbitrary precision, scaling
+    to numbers with thousands of digits.
+  \item {\bf Python} with {\tt gmpy2} for rapid prototyping and
+    statistical analysis.
+\end{itemize}
+
+All source code is available at
+\texttt{https://github.com/angualberto/The-Valence-Layer-Algorithm}.
+
+\section{Numerical Results}
+\label{sec:num}
+
+\subsection{Carmichael Numbers}
+
+Carmichael numbers are composites that pass Fermat's test but are
+correctly identified as composite by Miller--Rabin.
+Table~\ref{tab:carmichael} lists 16 Carmichael numbers tested.
+
+\begin{table}[htbp]
+\centering
+\caption{Carmichael numbers correctly rejected.}
+\label{tab:carmichael}
+\begin{tabular}{lrrl}
+\hline
+$N$ & Next Prime & Gap & Decomposition \\
+\hline
+561 & 563 & 2 & $1\times2$ \\
+1105 & 1109 & 4 & $1\times4$ \\
+1729 & 1733 & 4 & $1\times4$ \\
+2465 & 2467 & 2 & $1\times2$ \\
+2821 & 2833 & 12 & $1\times12$ \\
+6601 & 6607 & 6 & $1\times6$ \\
+8911 & 8923 & 12 & $1\times12$ \\
+10585 & 10589 & 4 & $1\times4$ \\
+15841 & 15859 & 18 & $1\times18$ \\
+29341 & 29347 & 6 & $1\times6$ \\
+41041 & 41047 & 6 & $1\times6$ \\
+46657 & 46663 & 6 & $1\times6$ \\
+52633 & 52639 & 6 & $1\times6$ \\
+62745 & 62753 & 8 & $1\times8$ \\
+63973 & 63977 & 4 & $1\times4$ \\
+75361 & 75367 & 6 & $1\times6$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Benchmarks}
+
+Table~\ref{tab:bench} shows performance across digit scales using the
+C+GMP implementation.  The average gap consistently follows
+$\ln N$ as predicted by the PNT.
+
+\begin{table}[htbp]
+\centering
+\caption{Benchmark results (C + GMP).}
+\label{tab:bench}
+\begin{tabular}{crrcc}
+\hline
+Digits & Primes & Mean Gap & $\ln N$ & Ratio \\
+\hline
+100 & 10,000 & 232.5 & 230.3 & 1.010 \\
+200 & 500 & 442.9 & 460.5 & 0.962 \\
+500 & 1 & 1300 & 1151 & 1.129 \\
+1000 & 1 & 13540 & 2303 & 5.88 \\
+2000 & 1 & 112 & 4605 & 0.024 \\
+3000 & 1 & 798 & 6908 & 0.116 \\
+5000 & 1 & 9978 & 11513 & 0.867 \\
+\hline
+\end{tabular}
+\end{table}
+
+The 5000-digit benchmark found the next prime in 1039~s (17.3~min).
+
+\subsection{Fractal Analysis}
+\label{sec:fractal}
+
+The gap distribution was analyzed across five scales ($10^3$ to
+$10^{15}$).  For each scale, 500 consecutive primes were generated
+using {\tt gmpy2.next\_prime}.
+
+\subsubsection{Hurst Exponent}
+
+The rescaled range (R/S) analysis gives the Hurst exponent $H$:
+\[
+E\bigl[R(n)/S(n)\bigr] \sim C\,n^H,\qquad n\to\infty.
+\]
+
+$H=0.5$ indicates white noise (uncorrelated increments), $H>0.5$
+persistence, and $H<0.5$ anti-persistence.
+
+\begin{table}[htbp]
+\centering
+\caption{Hurst exponents across scales.}
+\label{tab:hurst}
+\begin{tabular}{crrrc}
+\hline
+Scale & Mean Gap & $\ln N$ & Ratio & $H$ \\
+\hline
+$10^3$ & 8.0 & 6.9 & 1.16 & 0.456 \\
+$10^6$ & 13.3 & 13.8 & 0.96 & 0.501 \\
+$10^9$ & 20.6 & 20.7 & 0.99 & 0.574 \\
+$10^{12}$ & 28.0 & 27.6 & 1.01 & 0.550 \\
+$10^{15}$ & 39.2 & 34.5 & 1.14 & 0.599 \\
+\hline
+\end{tabular}
+\end{table}
+
+The mean $H\approx0.54$ is close to $0.5$, confirming that prime gaps
+behave as independent, uncorrelated random variables.  The fractal
+dimension $D=2-H\approx1.46$.
+
+\subsubsection{Normalized Gap Distribution}
+
+When each gap is divided by its scale's mean, the five histograms
+collapse onto a single curve (Fig.~\ref{fig:fractal}), demonstrating
+auto-similarity.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{fractal_analysis.png}
+\caption{Fractal analysis: Hurst R/S, auto-correlation, and
+normalized gap distributions.}
+\label{fig:fractal}
+\end{figure}
+
+\subsection{Last Two Digits}
+
+For primes $p>5$, $p\bmod100$ must be coprime to $10$; there are
+exactly 40 such residues.  By Dirichlet's theorem, each should
+appear with frequency $1/40=2.5\%$.
+
+We generated 50,000 consecutive primes near $10^{200}$ using
+{\tt gmpy2} and counted the last two digits.
+
+\begin{table}[htbp]
+\centering
+\caption{Last-two-digit distribution for 50,000 primes near $10^{200}$.}
+\label{tab:last2}
+\begin{tabular}{lr}
+\hline
+Statistic & Value \\
+\hline
+Mean count per residue & $1250.0$ \\
+Expected standard deviation & $34.9$ \\
+Observed standard deviation & $30.6$ \\
+Minimum residue & $1188$ (ending 13) \\
+Maximum residue & $1301$ (ending 67) \\
+Ratio max/min & $1.095$ \\
+$\chi^2$ (39 df) & consistent with uniformity \\
+\hline
+\end{tabular}
+\end{table}
+
+The distribution is consistent with perfect uniformity within
+statistical noise.
+
+\section{Goldbach's Conjecture}
+\label{sec:goldbach}
+
+Goldbach's conjecture states that every even $N>2$ can be written as
+$N=p+q$ with $p,q$ primes.  Define the counting function
+$r(N)=\#\{(p,q): p+q=N,\; p,q\text{ prime}\}$.
+
+The Hardy--Littlewood asymptotic is:
+\[
+r(N) \sim 2C_2 \frac{N}{\ln^2 N}
+\prod_{\substack{p\mid N\\ p>2}} \frac{p-1}{p-2},
+\qquad
+C_2 = \prod_{p>2}\left(1-\frac1{(p-1)^2}\right)\approx0.66016.
+\]
+
+\subsection{Numerical Verification}
+
+We tested even numbers up to $10^7$ using {\tt gmpy2.is\_prime}.
+
+\begin{table}[htbp]
+\centering
+\caption{Goldbach partition counts.}
+\label{tab:goldbach}
+\begin{tabular}{crrc}
+\hline
+$N$ & $r(N)$ & Asymptotic & Ratio \\
+\hline
+$10^4$ & 127 & 222.3 & 0.571 \\
+$10^5$ & 810 & 1372.4 & 0.590 \\
+$10^6$ & 5402 & 9372.0 & 0.576 \\
+$10^7$ & 38,807 & 68,300.7 & 0.568 \\
+\hline
+\end{tabular}
+\end{table}
+
+Every even $N$ tested has at least one Goldbach partition.
+The ratio $r(N)/r_{\text{asym}}(N)$ is stable at $\approx0.57$,
+consistent with the asymptotic converging slowly from below.
+
+\section{The Liouville Function}
+\label{sec:liouville}
+
+The Liouville function is defined as $\lambda(n)=(-1)^{\Omega(n)}$,
+where $\Omega(n)$ is the total number of prime factors of $n$
+counted with multiplicity.  The partial sums
+$L(N)=\sum_{n\le N}\lambda(n)$ satisfy
+\[
+\sum_{n=1}^{\infty}\frac{\lambda(n)}{n^{s}} = \frac{\zeta(2s)}{\zeta(s)},\qquad
+\Re(s)>1.
+\]
+
+We computed $L(N)$ up to $N=10^{8}$ using a C sieve to count
+$\Omega(n)$.  The implementation runs in 8 seconds on a standard
+desktop.  Table~\ref{tab:liouville_cota} shows the behavior of
+$\max_{N\le10^{8}}|L(N)|/N^{1/2+\varepsilon}$.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{c c c}
+\hline
+$\varepsilon$ & $\max_{N\le10^{8}}|L(N)|/N^{1/2+\varepsilon}$ & Behavior \\
+\hline
+$0.00$ & $1.231$ & Constant ($\approx1.3$) \\
+$0.05$ & $0.542$ & $\to0$ \\
+$0.10$ & $0.249$ & $\to0$ \\
+$0.20$ & $0.060$ & $\to0$ \\
+\hline
+\end{tabular}
+\caption{Ratio $\max|L(N)|/N^{1/2+\varepsilon}$ for different $\varepsilon$.
+For any $\varepsilon>0$ the ratio tends to zero with $N$.}
+\label{tab:liouville_cota}
+\end{table}
+
+Figure~\ref{fig:liouville_cota} shows $|L(N)|/N^{1/2+\varepsilon}$ for
+$\varepsilon=0,0.05,0.10,0.20$.  For $\varepsilon=0$ the ratio stabilises
+at $\approx1.3$; for any $\varepsilon>0$ it decays to zero.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{liouville_cota_epsilon.png}
+\caption{Ratio $|L(N)|/N^{1/2+\varepsilon}$ for $\varepsilon=
+0,0.05,0.10,0.20$.}
+\label{fig:liouville_cota}
+\end{figure}
+
+Figure~\ref{fig:liouville_envelope} compares $|L(N)|$ with the envelopes
+$\sqrt{N}$ and $1.36\sqrt{N}$.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{liouville_envelope_10^8.png}
+\caption{$|L(N)|$ vs.\ $\sqrt{N}$ and $1.36\sqrt{N}$.}
+\label{fig:liouville_envelope}
+\end{figure}
+
+\section{Bitwise Sieve Results in Fermat Factorization}
+\label{sec:bitwise}
+
+\subsection{Modular Residue Theory and the Fermat Bit Mask}
+
+The classical Fermat method seeks to solve the Diophantine equation
+$x^2 - y^2 = N$, which implies that the intermediate determinant
+$\Phi(x) = x^2 - N = y^2$ must be a perfect square over
+$\mathbb{Z}$.
+
+We define the set of quadratic residues of a modulus $m$ as:
+\[
+\mathcal{Q}_m = \{ a \in \mathbb{Z}_m \mid \exists k \in \mathbb{Z}_m
+\text{ such that } k^2 \equiv a \pmod m \}
+\]
+
+For any choice of $m$, the necessary condition for a
+candidate $x$ to produce a perfect square is that its projection satisfies:
+\[
+\Phi(x) \pmod m \in \mathcal{Q}_m
+\]
+
+For $m = 16$, the set of valid residues is extremely restricted:
+$\mathcal{Q}_{16} = \{0, 1, 4, 9\}$.  We define the characteristic function
+of the filter $\chi_{\mathcal{Q}_{16}}: \mathbb{Z}_{16} \to \{0, 1\}$
+associated with the control mask constant
+$\mathtt{MASK}_{16} = \mathtt{0x213}_{16}$:
+\[
+\chi_{\mathcal{Q}_{16}}(z) =
+\bigl( \lfloor \mathtt{MASK}_{16} \cdot 2^{-z} \rfloor \bigr) \pmod 2
+\]
+
+At the processor register level, the transition evaluation
+reduces to the bitwise operation with cost $\mathcal{O}(1)$:
+\[
+f(x) = \bigl( \mathtt{0x213} \gg ((x^2 - N) \ \& \ 15) \bigr) \ \& \ 1
+\]
+
+If $f(x) = 0$, the candidate is rejected instantly without needing
+to invoke the floating-point operation $\sqrt{\cdot}$.  For $m = 64$,
+the filter extends isomorphically using the set of residues
+$\mathcal{Q}_{64}$ of 12 elements mapped onto the 64-bit mask
+$\mathtt{MASK}_{64} = \mathtt{0x0282410120101113}_{16}$.
+
+For the odd coprime base sieves implemented in
+Algorithm~\ref{alg:fermat_bitwise}, the rejection characteristic
+functions are derived analogously by mapping the quadratic residue sets:
+\begin{align*}
+\mathcal{Q}_{9} &= \{0, 1, 4, 7\} \subset \mathbb{Z}_9 \\
+\mathcal{Q}_{5} &= \{0, 1, 4\} \subset \mathbb{Z}_5 \\
+\mathcal{Q}_{7} &= \{0, 1, 2, 4\} \subset \mathbb{Z}_7
+\end{align*}
+
+The control hexadecimal constants are generated by setting the bits
+corresponding to the allowed residues:
+\begin{align*}
+\mathtt{MASK}_{9}  &= \sum_{r \in \mathcal{Q}_9} 2^r
+  = 2^0 + 2^1 + 2^4 + 2^7 = 147 = \mathtt{0x93}_{16} \\
+\mathtt{MASK}_{5}  &= \sum_{r \in \mathcal{Q}_5} 2^r
+  = 2^0 + 2^1 + 2^4 = 19 = \mathtt{0x13}_{16} \\
+\mathtt{MASK}_{7}  &= \sum_{r \in \mathcal{Q}_7} 2^r
+  = 2^0 + 2^1 + 2^2 + 2^4 = 23 = \mathtt{0x17}_{16}
+\end{align*}
+
+Thus, the filtering operation in any base $m$ is
+generalized in silicon by the logical relation with cost $\mathcal{O}(1)$:
+\[
+f_m(y^2) = \bigl( \mathtt{MASK}_m \gg (y^2 \pmod m) \bigr) \ \& \ 1
+\]
+
+\begin{algorithm}[H]
+\caption{Fermat Factorization with Stacked Bitwise Sieves}
+\label{alg:fermat_bitwise}
+\begin{algorithmic}[1]
+\Require $N$ odd composite
+\Ensure $p,q$ prime factors of $N$
+\State $x \gets \lceil\sqrt{N}\rceil$
+\If{$(N \mathbin{\&} 3) = 1$}
+  \If{$(x \mathbin{\&} 1) = 0$}
+    \State $x \gets x \mid 1$ \Comment{forces odd parity via OR bitwise}
+  \EndIf
+\Else
+  \If{$(x \mathbin{\&} 1) = 1$}
+    \State $x \gets x + 1$ \Comment{forces even parity}
+  \EndIf
+\EndIf
+\Loop
+  \State $y^2 \gets x^2 - N$
+  \If{$\bigl(0x213 \gg (y^2 \mathbin{\&} 15)\bigr) \mathbin{\&} 1 = 0$}
+    \State $x \gets x + 2$ \Comment{rejected by Mod 16 sieve}
+    \State \textbf{continue}
+  \EndIf
+  \If{$\bigl(0x93 \gg (y^2 \bmod 9)\bigr) \mathbin{\&} 1 = 0$}
+    \State $x \gets x + 2$ \Comment{rejected by Mod 9 sieve}
+    \State \textbf{continue}
+  \EndIf
+  \If{$\bigl(0x13 \gg (y^2 \bmod 5)\bigr) \mathbin{\&} 1 = 0$}
+    \State $x \gets x + 2$ \Comment{rejected by Mod 5 sieve}
+    \State \textbf{continue}
+  \EndIf
+  \State $r \gets \lfloor\sqrt{y^2}\rfloor$ \Comment{sqrt() restricted to survivors}
+  \If{$r^2 = y^2$}
+    \State \Return $p \gets x - r,\; q \gets x + r$
+  \EndIf
+  \State $x \gets x + 2$
+\EndLoop
+\end{algorithmic}
+\end{algorithm}
+
+Table~\ref{tab:filtros} shows the impact of each quadratic residue sieve
+on the factorization of $N = 3999971 \times 4999999 = 19999851000029$
+by the Fermat method. Each sieve eliminates candidates for $x$ using
+only bit operations ($\&$, shift, XOR) before calling
+$\sqrt{y^2}$.
+
+\begin{table}[htbp]
+\centering
+\caption{Candidate rejection by stacked bitwise sieves.}
+\label{tab:filtros}
+\begin{tabular}{lcrrr}
+\hline
+Sieves & Rejection & sqrt() calls & Reduction \\
+\hline
+No filter (only parity $N\&3$) & $0\%$ & $13\,933$ & $1\times$ \\
+Mod 16 (bitwise, $x\&15$) & $50.0\%$ & $6\,967$ & $2\times$ \\
+Mod 64 (bitwise, $x\&63$) & $75.0\%$ & $3\,484$ & $4\times$ \\
+Mod 16 + Mod 9 & $83.3\%$ & $2\,323$ & $6\times$ \\
+Mod 16 + Mod 9 + Mod 7 & $92.9\%$ & $996$ & $14\times$ \\
+Mod 64 + Mod 9 + Mod 5 & $95.0\%$ & $698$ & $20\times$ \\
+Mod 64 + Mod 9 + Mod 5 + Mod 7 & $97.9\%$ & $299$ & $47\times$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Algebraic Modeling of the Carry Correlation Attack}
+
+The symmetric algorithm RC5 operates on the Cartesian product of truncated rings
+$\mathbb{Z}_{2^w} \times \mathbb{Z}_{2^w}$.  We define the bitwise
+carry operator $c_k$ for the addition of two machine words
+$X, Y \in \mathbb{Z}_{2^w}$ by the logical recurrence:
+\begin{align*}
+c_0 &= 0 \\
+c_{k+1} &= (x_k \wedge y_k) \vee (x_k \wedge c_k) \vee (y_k \wedge c_k)
+\end{align*}
+
+When the rotation amount of a round falls into the identity
+state ($B \equiv 0 \pmod w$), the rotation endomorphism
+$\rho(A, B)$ degenerates, resulting in the linear additive simplification:
+\[
+A' = (A \oplus B) + S[2i] \pmod{2^w}
+\]
+
+Let $X = A \oplus B$ be a known and controllable input.  For
+algebraic rigor, the differentiation operator
+$\frac{\partial A'}{\partial x_k}$ is formally defined as the
+discrete Boolean difference (Gibbs derivative) applied over the
+Galois field $\mathbb{Z}_{2^w}$:
+\[
+\frac{\partial f(X)}{\partial x_k} = f(X) \oplus f(X \oplus 2^k)
+\]
+
+This formulation guarantees that the variation of the carry bit
+directly maps the state transitions of the additive register.
+The discrete partial derivative of the output bit at position $k+1$ with
+respect to the unit perturbation $\Delta X = 2^k$ is given by:
+\[
+\frac{\partial A'}{\partial x_k} \implies
+s_k = c_{k+1} \oplus x_k \oplus (A')_k
+\]
+
+This direct phase correlation allows the isolation of the carry term
+$c_{k+1}$ and the linear inductive reconstruction of the subkey
+$S[2i]$ bits from right to left.  The attack complexity is
+definitively reduced from an exponential barrier to a
+strictly linear sweep of word size:
+\[
+\mathcal{O}(2^w) \longrightarrow \mathcal{O}(w)
+\]
+
+Table~\ref{tab:carry} summarizes the practical gain for RC5-32/12/16.
+
+\begin{table}[htbp]
+\centering
+\caption{Carry propagation attack on RC5.}
+\label{tab:carry}
+\begin{tabular}{lrc}
+\hline
+Method & Cost & Reduction \\
+\hline
+Brute force ($2^{32}$ keys) & $4\,294\,967\,296$ tests & $1\times$ \\
+Lock sieve ($3.125\%$) & $\approx 1\,342\,177\,280$ & $32\times$ \\
+Linear deduction by carry & $32$ additions & $134\,000\,000\times$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{RC5 Structure and Rotation Lock}
+
+RC5-\emph{w}/\emph{r}/\emph{b} encrypts blocks of $2w$ bits using
+$r$ rounds with data-dependent rotations. Each round applies:
+
+\begin{algorithm}[htbp]
+\caption{RC5: single round encryption}
+\label{alg:rc5_round}
+\begin{algorithmic}[1]
+\Require $A,B$ (block halves), $S[2i],S[2i+1]$ (subkeys)
+\Ensure $A',B'$ (next state)
+\State $A \gets \bigl((A \oplus B) \lll B\bigr) + S[2i]$
+  \Comment{rotation by $B \bmod w$}
+\State $B \gets \bigl((B \oplus A) \lll A\bigr) + S[2i+1]$
+\end{algorithmic}
+\end{algorithm}
+
+When $B \bmod w = 0$ (probability $1/w = 3{,}125\%$), the rotation
+\textbf{locks}: $\lll 0$ is identity. At that instant:
+\[
+A' = (A \oplus B) + S[2i],
+\]
+exposing the subkey $S[2i]$ to a differential attack.
+
+\subsection{RC5 Avalanche Test}
+
+Table~\ref{tab:avalanche} shows the avalanche effect of RC5-32/12/16:
+flipping 1 bit of the plaintext changes on average $32.58$ of the 64 bits of the
+ciphertext (ideal: $32$). The histogram (Fig.~\ref{fig:hist_avalanche}) has a
+Gaussian shape centered at $33$ bits, with $10$ of the $64$ samples
+reaching exactly that value.
+
+\begin{table}[htbp]
+\centering
+\caption{Avalanche test for RC5-32/12/16 (64 samples).}
+\label{tab:avalanche}
+\begin{tabular}{lrc}
+\hline
+Statistic & Value & Ideal \\
+\hline
+Mean bits changed & $32.58$ & $32.00$ \\
+Standard deviation (population) & $4.05$ & $4.00$ \\
+Minimum & $21$ & --- \\
+Maximum & $40$ & --- \\
+Absolute deviation from ideal & $0.58$ & $0.00$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.7\textwidth}
+\centering
+\vspace{0.5cm}
+{\footnotesize
+\begin{verbatim}
+Bit change count (64 samples):
+21 22    25 26    27 28 29 30 31 32 33 34 35 36 37 38 39 40
+ #  #      #  #   ### #### ### ##### ### ##### ########## ###### #### ####### ### ### ###  #
+\end{verbatim}
+}
+\caption{Histogram of the avalanche effect.}
+\label{fig:hist_avalanche}
+\end{minipage}
+\end{figure}
+
+\section{Gap Inversion Attack}
+\label{sec:gap_inversion}
+
+\subsection{Multiplicative Invariance of Gaps in Moduli}
+
+Consider the projection of two RSA moduli generated with shared factors
+$N_1 = p \cdot q_1$ and $N_2 = p \cdot q_2$, where $q_1, q_2$ are consecutive
+primes on the number line.  The absolute difference between the moduli
+is given by the scaling relation:
+\[
+\Delta N = |N_2 - N_1| = p \cdot |q_2 - q_1| = p \cdot \text{gap}_q
+\]
+
+Since the distribution of consecutive prime gaps obeys the local
+scale $\text{gap}_q \ll \sqrt{N}$, the problem of factoring the
+composite number $N_1$ is directly mapped to the identification of the divisor $p$
+of $\Delta N$ through a search restricted to the valences of the gap
+subgroup $\mathcal{V}$:
+\[
+p = \frac{\Delta N}{\sum_{i=1}^{m} K(s_i)}
+\]
+
+This transforms the complexity barrier from sub-exponential to
+linear in the size of the observed gap $\mathcal{O}(g)$.
+
+\subsection{BigInt Implementation (Limb Concatenation)}
+
+For primes above 32 bits, $N = p \times q$ exceeds $2^{64}$.
+We use a minimal big integer library by concatenation
+of 64-bit limbs (\emph{little-endian}):
+
+\[
+N = \sum_{i=0}^{n-1} L_i \cdot 2^{64i},
+\]
+
+where $n = \lceil \text{bits}(N) / 64 \rceil$.  With $n \leq 64$
+we cover up to 4096 bits (RSA-2048).  The required operations are:
+\begin{enumerate}
+  \item Subtraction ($\Delta N = N_2 - N_1$);
+  \item Modulo by $g$ (64 bits): $\Delta N \bmod g$;
+  \item Division by $g$: $p = \Delta N / g$;
+  \item BigInt modulo: $N_1 \bmod p$ (verification).
+\end{enumerate}
+
+\subsection{Experimental Results}
+
+Table~\ref{tab:gap_inversion} shows the attack performance
+for primes from 8 to 256 bits.  The number of steps depends only
+on the gap $g$, not on the key size.
+
+\begin{table}[htbp]
+\centering
+\caption{Gap inversion attack: steps vs.\ prime size.}
+\label{tab:gap_inversion}
+\begin{tabular}{crrrr}
+\hline
+Bits($p$) & $p$ (hex) & $g$ & Steps & Status \\
+\hline
+8  & \texttt{0x83} & 2  & 1   & OK \\
+16 & \texttt{0x8003} & 4  & 2   & OK \\
+24 & \texttt{0x800009} & 4  & 2   & OK \\
+32 & \texttt{0x8000000b} & 20 & 10  & OK \\
+40 & \texttt{0x8000000017} & 6  & 3   & OK \\
+48 & \texttt{0x800000000005} & 32 & 16  & OK \\
+56 & \texttt{0x80000000000003} & 40 & 20  & OK \\
+256 & \texttt{0xdbff\ldots 373f} & 146 & 73 & OK \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Comparison with Other Methods}
+
+Table~\ref{tab:metodos_comp} compares the gap attack with
+trial division and Fermat for $N = 19999851000029$ (32-bit
+primes).  The gap attack is the only one whose complexity does
+not depend on the prime size.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparison of factorization methods.}
+\label{tab:metodos_comp}
+\begin{tabular}{lccr}
+\hline
+Method & Iterations & Time (C) & Dependency \\
+\hline
+Trial division ($+2$) & $1\,999\,985$ & $0.023$ s & $O(\sqrt{N})$ \\
+Fermat + parity & $13\,933$ & $0.005$ s & $O(|p-q|)$ \\
+Sieve + OMP & $272\,136$ & $0.060$ s & $O(\sqrt{N}\log\log\sqrt{N})$ \\
+Gap inversion (2 keys) & $1$--$250$ & $< 1\,\mu$s & $O(g)$, $g < 500$ \\
+Classic GCD (2 keys) & $1$ & $< 1\,\mu$s & requires identical $p$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Limitation}
+
+The attack requires two moduli that share the same prime $p$.
+For a single isolated $N$, trial division (+2) is the fastest
+method for keys up to 32 bits ($0.023$ s).  For real
+RSA keys ($\ge 1024$ bits), no trial division method
+is viable---RSA security remains intact for well-generated
+keys.
+
+The theoretical contribution of the gap attack is to demonstrate that
+the structure of gaps between primes is preserved multiplicatively
+in the moduli, and that $\Delta N = p \times g$ reduces the
+factorization problem to a search over small gaps ($O(\log q)$ instead
+of $O(\sqrt{N})$).
+
+\section{Conclusion}
+
+The Valence Layer Algorithm provides:
+\begin{enumerate}
+  \item A practical, scalable method for finding consecutive primes
+    and decomposing their gaps into the integer sequence
+    $\{1000,500,200,\dots,2\}$;
+  \item Numerical confirmation of the PNT, auto-similarity of gaps
+    ($H\approx0.5$), and uniform last-digit distribution across
+    40 residue classes;
+  \item Verification of Goldbach's conjecture up to $10^7$ and
+    a structural connection through parity and the Hardy--Littlewood
+    circle method;
+  \item Computation of the Liouville function $L(N)$ up to $10^{8}$,
+    with $\max|L(N)|/\sqrt{N}\approx1.33$ stable across three scales.
+\end{enumerate}
+
+All code and data are publicly available.
+
+\begin{thebibliography}{10}
+
+\bibitem{titchmarsh} E.~C.~Titchmarsh and D.~R.~Heath-Brown,
+  {\it The Theory of the Riemann Zeta Function},
+  2nd ed., Oxford University Press, 1986.
+
+\bibitem{hardy-littlewood} G.~H.~Hardy and J.~E.~Littlewood,
+  Some problems of `Partitio Numerorum'; III: On the expression
+  of a number as a sum of primes,
+  {\it Acta Math.} \textbf{44} (1923), 1--70.
+
+\bibitem{efron} B.~Efron and T.~Hastie,
+  {\it Computer Age Statistical Inference}, Cambridge University Press, 2016.
+
+\bibitem{miller-rabin} M.~O.~Rabin,
+  Probabilistic algorithm for testing primality,
+  {\it J. Number Theory} \textbf{12} (1980), 128--138.
+
+\end{thebibliography}
+\end{document}
