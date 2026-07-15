@@ -417,6 +417,33 @@ o filtro estende-se de forma isomórfica utilizando o conjunto de resíduos
 $\mathcal{Q}_{64}$ de 12 elementos mapeados na máscara de 64 bits
 $\mathtt{MASK}_{64} = \mathtt{0x0282410120101113}_{16}$.
 
+Para os crivos de bases ímpares coprimas implementados no
+Algorithm~\ref{alg:fermat_bitwise}, as funções características de
+rejeição são derivadas de forma análoga mapeando os conjuntos de
+resíduos quadráticos:
+\begin{align*}
+\mathcal{Q}_{9} &= \{0, 1, 4, 7\} \subset \mathbb{Z}_9 \\
+\mathcal{Q}_{5} &= \{0, 1, 4\} \subset \mathbb{Z}_5 \\
+\mathcal{Q}_{7} &= \{0, 1, 2, 4\} \subset \mathbb{Z}_7
+\end{align*}
+
+As constantes hexadecimais de controle são geradas setando os bits
+correspondentes aos resíduos permitidos:
+\begin{align*}
+\mathtt{MASK}_{9}  &= \sum_{r \in \mathcal{Q}_9} 2^r
+  = 2^0 + 2^1 + 2^4 + 2^7 = 147 = \mathtt{0x93}_{16} \\
+\mathtt{MASK}_{5}  &= \sum_{r \in \mathcal{Q}_5} 2^r
+  = 2^0 + 2^1 + 2^4 = 19 = \mathtt{0x13}_{16} \\
+\mathtt{MASK}_{7}  &= \sum_{r \in \mathcal{Q}_7} 2^r
+  = 2^0 + 2^1 + 2^2 + 2^4 = 23 = \mathtt{0x17}_{16}
+\end{align*}
+
+Desta forma, a operação de filtragem em qualquer base $m$ é
+generalizada no silício pela relação lógica de custo $\mathcal{O}(1)$:
+\[
+f_m(y^2) = \bigl( \mathtt{MASK}_m \gg (y^2 \pmod m) \bigr) \ \& \ 1
+\]
+
 \begin{algorithm}[htbp]
 \caption{Fatoração de Fermat com filtros bitwise empilhados}
 \label{alg:fermat_bitwise}
@@ -424,29 +451,30 @@ $\mathtt{MASK}_{64} = \mathtt{0x0282410120101113}_{16}$.
 \Require $N$ composto ímpar
 \Ensure $p,q$ fatores primos de $N$
 \State $x \gets \lceil\sqrt{N}\rceil$
-\If{$(N \mathbin{\&} 3) = 1$} \Comment{paridade: $N \bmod 4$}
-  \If{$(x \mathbin{\&} 1) = 0$} $x \gets x \mid 1$ \EndIf
+\If{$(N \mathbin{\&} 3) = 1$}
+  \If{$(x \mathbin{\&} 1) = 0$}
+    \State $x \gets x \mid 1$ \Comment{força paridade ímpar via OR bitwise}
+  \EndIf
 \Else
-  \If{$(x \mathbin{\&} 1) = 1$} $x \gets x + 1$ \EndIf
+  \If{$(x \mathbin{\&} 1) = 1$}
+    \State $x \gets x + 1$ \Comment{força paridade par}
+  \EndIf
 \EndIf
 \Loop
   \State $y^2 \gets x^2 - N$
-  \Comment{Filtro 1: mod 16 (bitwise)}
   \If{$\bigl(0x213 \gg (y^2 \mathbin{\&} 15)\bigr) \mathbin{\&} 1 = 0$}
-    \State $x \gets x + 2$ \Comment{rejeitado}
+    \State $x \gets x + 2$ \Comment{rejeitado no crivo Mod 16}
     \State \textbf{continue}
   \EndIf
-  \Comment{Filtro 2: mod 9}
-  \If{$\bigl(0x093 \gg (y^2 \bmod 9)\bigr) \mathbin{\&} 1 = 0$}
-    \State $x \gets x + 2$
+  \If{$\bigl(0x93 \gg (y^2 \bmod 9)\bigr) \mathbin{\&} 1 = 0$}
+    \State $x \gets x + 2$ \Comment{rejeitado no crivo Mod 9}
     \State \textbf{continue}
   \EndIf
-  \Comment{Filtro 3: mod 5}
-  \If{$\bigl(0x013 \gg (y^2 \bmod 5)\bigr) \mathbin{\&} 1 = 0$}
-    \State $x \gets x + 2$
+  \If{$\bigl(0x13 \gg (y^2 \bmod 5)\bigr) \mathbin{\&} 1 = 0$}
+    \State $x \gets x + 2$ \Comment{rejeitado no crivo Mod 5}
     \State \textbf{continue}
   \EndIf
-  \State $r \gets \lfloor\sqrt{y^2}\rfloor$ \Comment{sqrt só aqui}
+  \State $r \gets \lfloor\sqrt{y^2}\rfloor$ \Comment{sqrt() restrita aos sobreviventes}
   \If{$r^2 = y^2$}
     \State \Return $p \gets x - r,\; q \gets x + r$
   \EndIf
@@ -480,8 +508,6 @@ Mod 64 + Mod 9 + Mod 5 + Mod 7 & $97.9\%$ & $299$ & $47\times$ \\
 \end{tabular}
 \end{table}
 
-\subsection{Propagação de Carry no RC5}
-
 \subsection{Modelagem Algébrica do Ataque por Correlação de Carry}
 
 O algoritmo simétrico RC5 opera no produto cartesiano de anéis truncados
@@ -500,9 +526,19 @@ $\rho(A, B)$ degenera, resultando na simplificação aditiva linear:
 A' = (A \oplus B) + S[2i] \pmod{2^w}
 \]
 
-Seja $X = A \oplus B$ uma entrada conhecida e controlável.  A derivada
-parcial discreta do bit de saída na posição $k+1$ em relação à
-perturbação unitária $\Delta X = 2^k$ é dada por:
+Seja $X = A \oplus B$ uma entrada conhecida e controlável.  Para
+fins de rigor algébrico, a operação de diferenciação
+$\frac{\partial A'}{\partial x_k}$ é definida formalmente como a
+diferença booleana discreta (derivada de Gibbs) aplicada sobre o
+corpo de Galois $\mathbb{Z}_{2^w}$:
+\[
+\frac{\partial f(X)}{\partial x_k} = f(X) \oplus f(X \oplus 2^k)
+\]
+
+Esta formulação garante que a variação do bit de transbordo (carry)
+mapeie diretamente as transições de estado do registrador aditivo.
+A derivada parcial discreta do bit de saída na posição $k+1$ em
+relação à perturbação unitária $\Delta X = 2^k$ é dada por:
 \[
 \frac{\partial A'}{\partial x_k} \implies
 s_k = c_{k+1} \oplus x_k \oplus (A')_k
