@@ -856,12 +856,17 @@ GCD clássico (2 chaves) & $1$ & $< 1\,\mu$s & requer $p$ idêntico \\
 
 \subsection{Limitação}
 
-O ataque exige dois módulos que compartilham o mesmo primo $p$.
-Para um único $N$ isolado, trial division (+2) é o método mais
-rápido para chaves de até 32 bits ($0.023$ s).  Para chaves
-RSA reais ($\ge 1024$ bits), nenhum método de divisão de prova
-é viável---a segurança do RSA permanece intacta para chaves
-bem geradas.
+O ataque por inversão de gap requer dois módulos que compartilham
+o mesmo primo $p$ ($N_1 = p \cdot q_1$, $N_2 = p \cdot q_2$).
+Para um único $N$ isolado sem fator compartilhado, o método não
+se aplica --- este não é um ataque de fatoração geral, mas sim
+um ataque de fator compartilhado (classe que inclui o GCD
+clássico de duas chaves).
+
+Neste cenário de módulo único, métodos tradicionais como trial
+division ou Fermat permanecem limitados a chaves pequenas ou
+fatores próximos.  A segurança do RSA para chaves bem geradas e
+independentes (sem reuso de primos) permanece intacta.
 
 A contribuição teórica do ataque por gap é demonstrar que
 a estrutura de gaps entre primos se preserva multiplicativamente

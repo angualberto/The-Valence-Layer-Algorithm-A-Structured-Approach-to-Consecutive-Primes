@@ -761,12 +761,16 @@ Classic GCD (2 keys) & $1$ & $< 1\,\mu$s & requires identical $p$ \\
 
 \subsection{Limitation}
 
-The attack requires two moduli that share the same prime $p$.
-For a single isolated $N$, trial division (+2) is the fastest
-method for keys up to 32 bits ($0.023$ s).  For real
-RSA keys ($\ge 1024$ bits), no trial division method
-is viable---RSA security remains intact for well-generated
-keys.
+The gap inversion attack requires two moduli that share the same
+prime $p$ ($N_1 = p \cdot q_1$, $N_2 = p \cdot q_2$).  For a single
+isolated $N$ without a shared factor, the method does not apply ---
+this is not a general factorization attack, but rather a shared-factor
+attack (a class that includes the classic GCD of two keys).
+
+In this single-modulus scenario, traditional methods such as trial
+division or Fermat remain limited to small keys or close primes.
+The security of RSA for well-generated, independent keys (without
+prime reuse) remains intact.
 
 The theoretical contribution of the gap attack is to demonstrate that
 the structure of gaps between primes is preserved multiplicatively
