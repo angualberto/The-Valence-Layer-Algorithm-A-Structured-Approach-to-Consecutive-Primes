@@ -846,6 +846,22 @@ Bits($p$) & $p$ (hex) & $g$ & Steps & Status \\
 
 \begin{table}[htbp]
 \centering
+\caption{Dynamic $\text{max\_gap}$ scaling with key size.}
+\label{tab:gap_scaling}
+\begin{tabular}{crrrrc}
+\hline
+Bits($p$) & Bits($N$) & gap$_q$ & Steps & $\text{max\_gap}$ & Time \\
+\hline
+256  & 512  & 52  & 26   & 500    & $<0.01$ms \\
+512  & 1024 & 30  & 15   & 1024   & 0.02ms \\
+1024 & 2047 & 66  & 33   & 2048   & 0.07ms \\
+2048 & 4096 & 1420 & 710 & 4096   & 0.90ms \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
 \caption{Product gap $\Delta N = p \times \text{gap}_q$ confirmed
 across all scales.}
 \label{tab:gap_produto}

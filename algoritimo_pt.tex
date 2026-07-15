@@ -887,6 +887,22 @@ Bits($p$) & $p$ (hex) & $g$ & Passos & Status \\
 
 \begin{table}[htbp]
 \centering
+\caption{Escalonamento dinâmico do $\text{max\_gap}$ com o tamanho da chave.}
+\label{tab:gap_scaling}
+\begin{tabular}{crrrrc}
+\hline
+Bits($p$) & Bits($N$) & gap$_q$ & Passos & $\text{max\_gap}$ & Tempo \\
+\hline
+256  & 512  & 52  & 26   & 500    & $<0.01$ms \\
+512  & 1024 & 30  & 15   & 1024   & 0.02ms \\
+1024 & 2047 & 66  & 33   & 2048   & 0.07ms \\
+2048 & 4096 & 1420 & 710 & 4096   & 0.90ms \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
 \caption{Gap dos produtos $\Delta N = p \times \text{gap}_q$ confirmado
 em todas as escalas.}
 \label{tab:gap_produto}
