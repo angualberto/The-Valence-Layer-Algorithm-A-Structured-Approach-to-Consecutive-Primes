@@ -21,16 +21,26 @@
 
 \begin{abstract}
 Apresentamos o Algoritmo de Camada de Valência, uma estrutura determinística
-para gerar primos consecutivos e decompor gaps de primos usando
-a sequência de inteiros $\mathcal{V} = \{1000,500,200,\dots,2\}$.
-O algoritmo é implementado em Fortran (64/128 bits), C+GMP
-(precisão arbitrária) e Python, escalando de hardware desktop
-a números com milhares de dígitos.  A análise numérica em
-cinco escalas ($10^3$ a $10^{15}$) produz um expoente de Hurst
-$H\approx0,5$, confirmando que gaps se comportam como ruído branco com
-dimensão fractal $D\approx1,5$.  Verificamos a conjectura de Goldbach
-para números pares até $10^7$ e calculamos as somas parciais
-de Liouville $L(N)$ até $10^8$, observando $\max|L|/\sqrt{N}\approx1,33$.
+unificada para a geração de primos consecutivos, decomposição de gaps e
+criptoanálise de sistemas criptográficos baseada em restrições de baixo
+nível.  O algoritmo opera sobre a sequência de valências
+$\mathcal{V} = \{1000, 500, \dots, 2\}$ utilizando aritmética de
+precisão arbitrária ($\mathtt{bigint\_min.h}$) e implementação otimizada
+em hardware clássico.
+
+A análise estatística em cinco escalas ($10^3$ a $10^{15}$) revela um
+expoente de Hurst $H \approx 0{,}54$, validando o comportamento dos gaps
+como ruído Gaussiano auto-similar.  Demonstramos a robustez física da
+arquitetura de crivos modulares sobre a equação diofantina de Fermat,
+obtendo uma taxa de rejeição de até $97{,}9\%$ nas chamadas de ponto
+flutuante e quebrando o módulo RSA-256 em apenas 73 passos pelo ataque
+de inversão de gap.  No domínio simétrico, exploramos o estado
+degenerado de rotação nula no RC5-32/12/16, demonstrando que a
+diferenciação booleana do carry reduz a complexidade de busca da
+subchave de $\mathcal{O}(2^w)$ para $\mathcal{O}(w)$.
+Verificamos ainda a conjectura de Goldbach até $10^7$ e mapeamos as
+somas parciais de Liouville até $10^8$ sob o limite assintótico da
+linha crítica.
 \end{abstract}
 
 \noindent{\it Palavras e frases-chave:}\ gap primo, algoritmo de camada de valência,
@@ -42,33 +52,50 @@ Secondary 11N05, 11P32, 11Y16.
 \section{Introdução}
 \label{sec:intro}
 
-A distribuição dos números primos é um dos temas mais profundos da
-matemática.  Enquanto o Teorema do Número Primo (TNP) descreve sua
-densidade assintótica $\pi(N)\sim N/\ln N$, a estrutura local---gaps
-de primos---exibe irregularidade que ainda não é totalmente compreendida.
+A distribuição dos números primos e a estrutura geométrica de seus gaps
+consecutivos permanecem entre as fronteiras mais profundas da Teoria
+Analítica dos Números.  Enquanto o Teorema do Número Primo (TNP) dita
+o comportamento assintótico global da densidade média dos primos através
+da relação $\pi(N) \sim N / \ln N$, as flutuações locais de curtíssimo
+curso guardam simetrias e correlações físicas que desafiam modelos
+tradicionais.
 
-As relações do sistema são governadas por um fator de escala crítico
-de $1/2$.  Este expoente é a semente algébrica da simetria
-subjacente ao algoritmo: $2$ é o bloco fundamental da
-caixa de ferramentas de valência, enquanto $1/2$ representa a linha
-crítica $\Re(s) = 1/2$ dos zeros não triviais da função Zeta de Riemann
-$\zeta(s)$.  Sob a Hipótese de Riemann, o termo de erro na
-distribuição de primos oscila com um limite de amplitude de
-$O(N^{1/2+\epsilon})$, fronteira espelhada por nossa análise empírica
-das somas parciais de Liouville $L(N) = O(N^{1/2+\epsilon})$ e das
-flutuações fractais do expoente de Hurst ($H \approx 0,5$)
-descrevendo os gaps de primos.
+Neste trabalho, demonstramos que a oscilação desses intervalos não é
+puramente errática, mas governada por uma escala crítica de ressonância
+de ordem $1/2$.  Este expoente atua como a semente algébrica do sistema:
+o valor $2 \in \mathcal{V}$ representa o bloco fundamental de
+acoplamento das valências, ao passo que $1/2$ reflete a linha crítica
+de simetria $\Re(s) = 1/2$ dos zeros não triviais da função Zeta de
+Riemann $\zeta(s)$.  Sob a Hipótese de Riemann, o termo de erro na
+contagem de primos exibe uma amplitude limite de flutuação de
+$O(N^{1/2+\epsilon})$.  Essa barreira física encontra simetria exata em
+nossas observações experimentais das somas parciais da função de
+Liouville $L(N) = O(N^{1/2+\epsilon})$ e no comportamento fractal de
+ruído branco ($H \approx 0{,}5$) dos gaps primos sob análise de
+amplitude reescalada.
 
-Este artigo apresenta o {\it Algoritmo de Camada de Valência}, um
-método determinístico que:
-\begin{enumerate}
-  \item Encontra o próximo primo após qualquer inteiro $N$ usando
-    teste de primalidade determinístico de Miller--Rabin;
-  \item Decompõe o gap $G=p_{\text{próximo}}-N$ usando uma
-    {\it caixa de ferramentas} fixa de inteiros pares;
-  \item Fornece análise estatística das distribuições de gaps,
-    partições de Goldbach e da função de Liouville.
-\end{enumerate}
+Contudo, a grande contribuição deste artigo reside em provar que essas
+restrições aritméticas e geométricas não estão isoladas no campo
+teórico.  Quando projetadas no nível do silício dos computadores
+clássicos, as propriedades de congruência e as assinaturas de resíduos
+modulares agem como crivos de alto desempenho, capazes de mitigar de
+forma brutal a complexidade de problemas tidos como computacionalmente
+inviáveis.
+
+Mapeamos esse fenômeno sob duas frentes distintas de criptoanálise de
+baixo nível:
+\begin{itemize}
+  \item \textbf{Criptografia Assimétrica (Fermat/RSA):} Onde o
+    empilhamento de crivos de bits em bases coprimas ($m = 64, 9, 5, 7$)
+    reduz a dependência de chamadas pesadas de raiz quadrada, permitindo
+    que a geometria da diferença de quadrados fatore módulos de 256 bits
+    em um número de passos de ordem linear baseada no gap físico.
+  \item \textbf{Criptografia Simétrica (RC5):} Onde o acoplamento
+    mecânico de rotações dependentes de dados e adição modular em
+    $\mathbb{Z}_{2^w}$ degenera sob condições específicas de travamento
+    de fase, permitindo que o vazamento de bits do operador de carry
+    exponha a chave secreta de forma direta.
+\end{itemize}
 
 \section{O Algoritmo de Camada de Valência}
 \label{sec:alg}
