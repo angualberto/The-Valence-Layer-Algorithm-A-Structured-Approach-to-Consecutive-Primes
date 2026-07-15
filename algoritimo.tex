@@ -46,16 +46,17 @@ mathematics.  While the Prime Number Theorem (PNT) describes their
 asymptotic density $\pi(N)\sim N/\ln N$, the local structure---prime
 gaps---exhibits irregularity that is not yet fully understood.
 
-The fundamental equation
-\[
-\boxed{\tfrac12 \times 2 = 1}
-\]
-is the algebraic seed of the symmetry underlying the algorithm:
-$2$ is the first tool in the valence toolbox, $1/2$ is the
-critical-line exponent around which prime gaps oscillate
-($H\approx0.5$) and the Liouville bound
-$L(N)=O(N^{1/2+\varepsilon})$ is centred, and $1$ is the
-primordial unit.
+The relations of the system are governed by a critical scaling factor
+of $1/2$.  This exponent is the algebraic seed of the symmetry
+underlying the algorithm: $2$ is the fundamental building block of
+the valence toolbox, while $1/2$ represents the critical line
+$\Re(s) = 1/2$ of the non-trivial zeros of the Riemann Zeta function
+$\zeta(s)$.  Under the Riemann Hypothesis, the error term in the
+prime distribution oscillates with an amplitude bound of
+$O(N^{1/2+\epsilon})$, a boundary mirrored by our empirical analysis
+of the Liouville partial sums $L(N) = O(N^{1/2+\epsilon})$ and the
+fractal fluctuations of the Hurst exponent ($H \approx 0.5$)
+describing the prime gaps.
 
 This paper introduces the {\it Valence Layer Algorithm}, a
 deterministic method that:
@@ -74,15 +75,29 @@ deterministic method that:
 \subsection{The Toolbox}
 \label{sec:tools}
 
-Define the {\it valence toolbox}:
+Let $\mathcal{V} = \{v_1, v_2, \dots, v_k\}$ be a finite, ordered set of
+even integers sorted in descending order, defined as:
 \[
-\mathcal{V} = \{1000,\,500,\,200,\,120,\,64,\,34,\,32,\,30,\,28,\,24,\,
-20,\,18,\,16,\,12,\,10,\,8,\,6,\,4,\,2\}.
+\mathcal{V} = \{1000, 500, 200, 120, 64, 34, 32, 30, 28, 24,
+20, 18, 16, 12, 10, 8, 6, 4, 2\}.
 \]
 
-Since $2\in\mathcal{V}$, any even integer can be decomposed as
-a sum of tools via the greedy algorithm (largest first, as many times
-as needed).
+Since $2 \in \mathcal{V}$, any even integer can be uniquely represented.
+We formalize the decomposition of a prime gap $G = p_{\text{next}} - N$
+as an expansion over a state-space of valences.  Let the valuation
+operator $\Phi_{\mathcal{V}}: \mathbb{E} \to \mathbb{Z}^k$ map any even
+integer $G$ to a coefficient vector $\mathbf{s} = (s_1, s_2, \dots, s_k)$
+such that:
+\[
+G = \sum_{i=1}^{k} s_i \cdot v_i
+\]
+where the coefficients $s_i \in \mathbb{N}$ are computed recursively
+under the greedy restriction constraint:
+\[
+s_i = \left\lfloor \frac{G_{i-1}}{v_i} \right\rfloor,\quad
+G_i = G_{i-1} \pmod{v_i}
+\]
+with the initial boundary condition $G_0 = G$.
 
 \begin{proposition}[Gap Parity]
 \label{prop:parity}
@@ -98,6 +113,19 @@ For $2$ and $3$, the gap is $1$ by inspection.
 \label{coro:decomp}
 Every prime gap $G>1$ can be decomposed using $\mathcal{V}$.
 \end{corollary}
+
+\begin{proposition}
+\label{prop:greedy}
+The greedy expansion induced by $\Phi_{\mathcal{V}}$ terminates in
+finite steps and is exact for any prime gap $G > 1$.
+\end{proposition}
+\begin{proof}
+By Proposition~\ref{prop:parity}, $G$ is even.  Since
+$v_k = 2$ is the infimum of $\mathcal{V}$, the remainder at the
+final step must satisfy $G_{k-1} \pmod 2 = 0$.  Thus,
+$G_{k-1}$ is exactly divisible by $2$, yielding an exact
+decomposition with zero residual error.
+\end{proof}
 
 \subsection{Algorithm}
 \label{sec:algo}
@@ -444,7 +472,7 @@ generalizada no silício pela relação lógica de custo $\mathcal{O}(1)$:
 f_m(y^2) = \bigl( \mathtt{MASK}_m \gg (y^2 \pmod m) \bigr) \ \& \ 1
 \]
 
-\begin{algorithm}[htbp]
+\begin{algorithm}[H]
 \caption{Fatoração de Fermat com filtros bitwise empilhados}
 \label{alg:fermat_bitwise}
 \begin{algorithmic}[1]
