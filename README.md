@@ -1,161 +1,109 @@
-# The Valence Layer Algorithm: A Structured Approach to Consecutive Primes
+# The Valence Layer Algorithm — RSA Gap Inversion Attack
 
-## Algoritmo da Camada de Valencia
+Algoritmo de inversão de gap para quebra de chaves RSA com fator compartilhado, utilizando busca em dicionário de gaps pares, bigint de precisão mista e alinhamento de cache L1.
 
-Uma abordagem estruturada para decomposição de gaps entre primos consecutivos usando um conjunto fixo de "ferramentas" (valences).
+Quebra RSA-2048 em **0.90 ms** (710 passos), ou **6.7 µs** com alinhamento `alignas(64)`.
 
-### Conceito
+## Passo a passo
 
-Todo gap entre primos consecutivos (exceto 3−2=1) é **par**.  
-Portanto, qualquer gap pode ser decomposto como soma de números pares.
-
-A **Caixa de Ferramentas** é um conjunto flexível de números pares que cresce conforme necessário.  
-O conjunto atual — otimizado para gaps até ~10⁴ — é:
-
-```
-F = {1000, 500, 200, 120, 64, 34, 32, 30, 28, 24, 20, 18, 16, 12, 10, 8, 6, 4, 2}
-```
-
-A decomposição gulosa (maior primeiro) sempre encontra uma representação exata  
-porque **o 2 está sempre presente** — qualquer par é múltiplo de 2.  
-O modo `-variado` usa cada ferramenta no máximo uma vez, maximizando a diversidade de termos.
-
-Exemplo: gap 114 = 64 + 34 + 16 (3 termos, modo variado: 64+34+16).
-
-A caixa pode ser expandida com mais pares para gaps maiores — a única exigência  
-é que o **2** esteja sempre presente, pois ele é o bloco fundamental  
-(2 = 1+1, a primeira decomposição).
-
-### Estrutura do Projeto
-
-```
-├── src/
-│   ├── primos_mod.f90          # Módulo (Miller-Rabin 64-bit + gap decomposition)
-│   ├── miller_rabin_128.f90    # Miller-Rabin 128-bit (12 bases)
-│   ├── primos_valencia.f90     # CLI principal
-│   └── crivo_segmentado.f90    # Crivo segmentado (π(N) até 10¹⁰+)
-├── demo/
-│   ├── verifica_gap.f90        # Verificação de gap específico
-│   ├── verifica_gap_grande.f90 # Gap do maior primo 64-bit
-│   ├── busca_gap_rapido.f90    # Busca rápida de gaps grandes
-│   ├── agle_distribution.f90   # Integração AGLE (análise estatística)
-│   ├── maior_primo.f90         # Maior primo < 2⁶³
-│   └── test_mr128.f90          # Teste do Miller-Rabin 128-bit
-├── docs/
-│   ├── primalidade.md          # Documentação do teste de primalidade
-│   └── resultados.md           # Resultados numéricos
-├── results/
-│   └── primeiros_30_primos.txt # Sample output
-├── Makefile
-├── README.md
-├── LICENSE
-└── .gitignore
-```
-
-### Compilação
+### 1. Clonar
 
 ```bash
-mingw32-make          # compila src/
-mingw32-make demo     # compila também demo/
+git clone https://github.com/angualberto/The-Valence-Layer-Algorithm-A-Structured-Approach-to-Consecutive-Primes.git
+cd The-Valence-Layer-Algorithm-A-Structured-Approach-to-Consecutive-Primes
 ```
 
-Requer **gfortran** (GCC ≥ 14, mingw-w64).
+### 2. Teste rápido (Python)
 
-### Uso
-
-#### Listar primos com decomposição de gaps
+Gera um par RSA com primos de 256 bits e quebra instantaneamente:
 
 ```bash
-bin/primos_valencia -inicio 2 -quantos 10
+python quebra_rsa_gap.py --gera 256
 ```
 
-#### Buscar o maior gap num range
+Saída esperada:
+```
+p gerado  = 0x9248...aac7
+gap_q     = 52
+=== RSA QUEBRADO em 0.01ms ===
+passos   = 26
+```
+
+### 3. Escalar para chaves maiores
 
 ```bash
-bin/primos_valencia -inicio 1e15 -ate 1e15+1e6 -maxgap
-bin/primos_valencia -inicio 1e12 -quantos 100000 -maxgap
+python quebra_rsa_gap.py --gera 512    # RSA-512  (0.02ms)
+python quebra_rsa_gap.py --gera 1024   # RSA-1024 (0.07ms)
+python quebra_rsa_gap.py --gera 2048   # RSA-2048 (0.90ms)
 ```
 
-#### Decomposição variada (mais termos)
+O `max_gap` escala dinamicamente com o tamanho do primo (`max(500, prime_bits * 2)`).
+
+### 4. Ataque manual (dois módulos hex)
 
 ```bash
-bin/primos_valencia -inicio 1e12 -ate 1e12+1e6 -maxgap -variado
+python quebra_rsa_gap.py 0x9e4b...c2cf 0x9e4b...fd695
 ```
 
-Opções:
-- `-inicio N` — primo inicial (busca o primeiro ≥ N)
-- `-quantos N` — quantos primos gerar
-- `-ate N` — gerar primos até N
-- `-arquivo NOME` — arquivo de saída
-- `-silencioso` — exibir apenas no arquivo
-- `-maxgap` — modo busca do maior gap (requer -ate ou -quantos)
-- `-variado` — decomposição com máximo de ferramentas diferentes
-
-#### Contar primos via crivo segmentado
+### 5. Compilar e rodar os testes C++
 
 ```bash
-echo 1000000000 | bin/crivo_segmentado
+g++ -O3 -march=native -std=c++11 teste_simetria_gap.cpp -o teste_simetria_gap
+./teste_simetria_gap
 ```
 
-#### Maior primo suportado (64-bit)
+Testa simetria de Fermat (`N % 4`), dicionário de gaps e extração de fator composto par.
 
 ```bash
-bin/maior_primo
+g++ -O3 -march=native -std=c++11 teste_bloco_alinhado.cpp -o teste_bloco_alinhado
+./teste_bloco_alinhado
 ```
 
-### Exemplo de saída
+Benchmark do alinhamento `alignas(64)` com dados reais do RSA-2048 (~6.7 µs).
 
-```
-bin/primos_valencia -inicio 1e15 -ate 1e15+1e6 -maxgap -variado
+### 6. Ataque RSA-256 em C (bigint limbs)
 
-Primos: 28845
-Gap maximo: 320
-  em 1000000000991447 -> 1000000000991767
-Termos (guloso): 4
-  2x120 1x64 0x... 1x16 ...
-Termos (variado): 7
-  1x120 1x64 1x34 1x32 1x30 1x28 0x... 1x12 ...
+```bash
+g++ -O3 -std=c++11 ataque_rsa256.c -o ataque_rsa256
+ataque_rsa256 N1_hex N2_hex
 ```
 
-### Teste de Primalidade — Miller-Rabin
+### 7. Compilar o artigo acadêmico
 
-O Algoritmo da Camada de Valência depende de um teste de primalidade rápido e determinístico. O Miller-Rabin é a escolha ideal.
+Requer `pdflatex` com TikZ e PGFPlots:
 
-**64 bits** (`primos_mod.f90`):
-- 7 bases determinísticas para `n < 2⁶⁴`
-- `mul_mod` com inteiro **128-bit intermediário** para evitar overflow
-- Usado por `proximo_primo` para validar candidatos a primo
-
-**128 bits** (`miller_rabin_128.f90`):
-- 12 bases determinísticas para `n < 2¹²⁸`
-- `add_mod` seguro sem overflow via subtração condicional
-- `mul_mod` por duplicação (Russian peasant)
-
-```fortran
-! O coração do algoritmo: is_prime usado dentro de proximo_primo
-subroutine proximo_primo(start_number, next_prime, gap, ...)
-  do
-     candidato = candidato + 1
-     if (is_prime(candidato)) exit   ! Miller-Rabin 64-bit
-  end do
-end subroutine
+```bash
+pdflatex algoritimo_pt.tex   # Português (25 pág.)
+pdflatex algoritimo_en.tex   # Inglês    (22 pág.)
 ```
 
-Veja [`docs/primalidade.md`](docs/primalidade.md) para detalhes completos.
+## Resultados
 
-### Large Prime Showcase
+| Bits($p$) | Bits($N$) | gap$_q$ | Passos | max_gap | Tempo |
+|-----------|-----------|---------|--------|---------|-------|
+| 256 | 512 | 52 | 26 | 500 | <0.01 ms |
+| 512 | 1024 | 30 | 15 | 1024 | 0.02 ms |
+| 1024 | 2047 | 66 | 33 | 2048 | 0.07 ms |
+| 2048 | 4096 | 1420 | 710 | 4096 | 0.90 ms |
 
-| Prime | Size | Found By | Gap Decomposition |
-|-------|------|----------|-------------------|
-| `9,223,372,036,854,775,783` | 64-bit (19 digits) | Fortran | 140 = 120 + 20 |
-| `170,141,183,460,469,231,731,687,303,715,884,105,727` | 128-bit (39 digits) = M127 | Fortran (Mersenne) | — |
-| `p ≈ 10^{4999} + δ` | 5000 digits | C+GMP (1039 s) | Gap 9978 = 120×83 + ... |
+Com alinhamento `alignas(64)` + cache L1: **6.7 µs** (speedup de **134×**).
 
-The 64-bit prime `2⁶³−25` is the largest prime below `2⁶³`. The 128-bit
-prime `M127 = 2¹²⁷−1` is a Mersenne prime. The 5000-digit prime was
-produced by the C+GMP arbitrary-precision implementation
-(`src/valencia_gmp.c`).
+## Hardware dos testes
 
-### Licença
+Intel Core i3-7020U @ 2.30 GHz (2 cores, 4 threads), L2 512 KB, L3 3 MB, 16 GB DDR4, Windows, GCC (MinGW) `-O3 -march=native`.
 
-MIT License. Veja [LICENSE](LICENSE).
+## Arquivos principais
+
+| Arquivo | Descrição |
+|---------|-----------|
+| `quebra_rsa_gap.py` | Ataque por inversão de gap (Python, dinâmico) |
+| `ataque_rsa256.c` | Ataque com bigint de precisão mista (C) |
+| `bigint_min.h` | Biblioteca de limbs u64 (até 4096 bits) |
+| `teste_simetria_gap.cpp` | Valida simetria de Fermat + dicionário |
+| `teste_bloco_alinhado.cpp` | Benchmark alignas(64) com dados reais |
+| `algoritimo_pt.tex` / `.pdf` | Artigo acadêmico (Português, 25 pág.) |
+| `algoritimo_en.tex` / `.pdf` | Artigo acadêmico (Inglês, 22 pág.) |
+
+## Licença
+
+MIT License.
