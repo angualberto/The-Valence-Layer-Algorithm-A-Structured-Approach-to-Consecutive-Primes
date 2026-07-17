@@ -94,5 +94,5 @@ ax3.set_title('Convergencia'); ax3.legend(); ax3.grid(alpha=0.3)
 
 plt.suptitle('Conjectura de Goldbach - Camada de Valencia', fontweight='bold')
 plt.tight_layout()
-plt.savefig('C:\\Users\\Andre\\Documents\\valence-layer-algorithm\\imagens\\goldbach.png', dpi=300)
+plt.savefig('goldbach.png', dpi=300)
 print("Grafico: goldbach.png")

@@ -222,7 +222,7 @@ for bar, h in zip(bars, H_vals):
 plt.suptitle('Analise Fractal dos Gaps de Primos — Algoritmo da Camada de Valencia',
              fontsize=14, fontweight='bold')
 plt.tight_layout()
-plt.savefig('C:\\Users\\Andre\\Documents\\valence-layer-algorithm\\fractal_analysis.png',
+plt.savefig('fractal_analysis.png',
             dpi=300, bbox_inches='tight')
 print("Grafico salvo: fractal_analysis.png")
 

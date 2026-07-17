@@ -57,7 +57,7 @@ plt.title(f'Distribuicao dos ultimos 2 digitos em {NUM_PRIMOS} primos ≈ 10^{DI
 plt.legend()
 plt.grid(axis='y', alpha=0.3)
 plt.tight_layout()
-plt.savefig('C:\\Users\\Andre\\Documents\\valence-layer-algorithm\\ultimos_2_digitos.png', dpi=300)
+plt.savefig('ultimos_2_digitos.png', dpi=300)
 print(f"\nGrafico salvo: ultimos_2_digitos.png")
 
 print("\n" + "="*60)

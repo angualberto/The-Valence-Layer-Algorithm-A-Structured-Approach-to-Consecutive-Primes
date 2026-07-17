@@ -7,7 +7,7 @@ import sys
 import time
 from collections import Counter
 
-VALENCIA = r"C:\Users\Andre\Documents\valence-layer-algorithm\src\valencia_gmp.exe"
+VALENCIA = r"valencia_gmp.exe"
 
 def encontrar_proximo_primo(N):
     """Retorna (proximo_primo, gap) usando valencia_gmp.exe"""

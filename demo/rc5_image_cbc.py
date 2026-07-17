@@ -164,8 +164,8 @@ def decrypt_image_cbc(input_bmp_path, output_bmp_path, key):
     print(f"Decrypted pixels saved to {output_bmp_path}")
 
 def main():
-    base_dir = r"C:\Users\Andre\.gemini\antigravity\brain\1eea3146-6482-4f3e-ba79-bde90cce8fad"
-    jpg_path = os.path.join(base_dir, "test_image_to_encrypt_1784316363751.jpg")
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    jpg_path = os.path.join(base_dir, "original.bmp")
     
     # 1. Convert JPEG to BMP
     bmp_orig = os.path.join(base_dir, "test_image_orig.bmp")

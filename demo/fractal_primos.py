@@ -122,7 +122,7 @@ plt.colorbar(im6, ax=ax6)
 plt.suptitle('Estrutura Fractal dos Numeros Primos — Algoritmo da Camada de Valencia',
              fontsize=14, fontweight='bold')
 plt.tight_layout()
-plt.savefig('C:\\Users\\Andre\\Documents\\valence-layer-algorithm\\fractal_primos.png',
+plt.savefig('fractal_primos.png',
             dpi=300, bbox_inches='tight')
 print(f"Grafico salvo: fractal_primos.png")
 print("\nEstatisticas:")

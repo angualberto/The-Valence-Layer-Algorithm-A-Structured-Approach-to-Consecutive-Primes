@@ -12,7 +12,7 @@ import os, shutil
 
 OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "imagens")
 os.makedirs(OUT_DIR, exist_ok=True)
-ARTIGO_DIR = r"C:\Users\Andre\Documents\siteeg\PLG\assets\artigo"
+ARTIGO_DIR = r"artigo"
 
 # ─── 1. Load Liouville data (100M gives wider u-range) ───
 data_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dados", "L_N_100M.txt")
