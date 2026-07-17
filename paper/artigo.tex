@@ -586,6 +586,18 @@ The implementation (C++ with GMP) and the challenge parameters are available in 
 \paragraph{Implementation validation and test vectors.}
 To validate the correctness of the RC5-32/12/16 implementation, we verified the software against the standard test vectors defined in RFC 2040 \citep{rsalabs2002}. For a zero key of 16 bytes and a zero plaintext of 8 bytes, the computed ciphertext matches \texttt{eedba5216d8f4b15} byte-exactly. Additionally, while standard tools like OpenSSL support RC5 (e.g., \texttt{-rc5-cbc}), it is typically disabled by default in pre-compiled binaries due to legacy status, requiring manual activation or specialized command-line tools such as \texttt{rc5-cli} for independent cross-validation.
 
+\paragraph{Image encryption validation.}
+To further validate the RC5-32/12/16 implementation used in the carry attack, we applied the same cipher in CBC mode to a BMP image. The 54-byte header was preserved, and only the pixel data was encrypted. The resulting image appears as random noise (Figure~\ref{fig:image_encryption}), while decryption recovers the original image with 100\% byte-by-byte accuracy. This confirms that the implementation is correct and that the carry attack can be reproduced on real data. The source code for this test is available in the repository as \texttt{rc5\_image\_cbc.py}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.48\columnwidth]{test_image_orig.png}
+\hfill
+\includegraphics[width=0.48\columnwidth]{test_image_enc.png}
+\caption{Image encryption validation using RC5-32/12/16 in CBC mode: original high-contrast pattern (left) and encrypted noise (right).}
+\label{fig:image_encryption}
+\end{figure}
+
 \paragraph{Clock detection via tangent decomposition.}
 The rotation in RC5 can be expressed as an angle \(\phi = 2\pi\,(B \bmod w)/w\), whose tangent \(\tan(\phi)\) reveals the discrete clock \(w\). When lock occurs (\(B\equiv0\bmod w\)), \(\sin(\phi)=0\) and the rotation degenerates to a linear addition---exposing the carry. This same structure governs the zeta phase: the fundamental period \(T = 2\pi/\ln 2 \approx 9.064\) defines the spacing of the exceptional lines (\(t = n\pi/\ln 2\)), where \(\sin(t\ln 2)=0\) and the phase condition \(K(s)K(1-s)\in\mathbb{R}\) holds regardless of \(\sigma\). Figure~\ref{fig:clock_tangente} shows the sine, cosine, and tangent decomposition for \(\sigma=0.75\): the gray vertical lines mark \(\sin=0\) and coincide with the tangent zeros, delimiting the system's natural clock.
 
