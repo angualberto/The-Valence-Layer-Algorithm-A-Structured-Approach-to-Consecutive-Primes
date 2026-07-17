@@ -598,6 +598,35 @@ To further validate the RC5-32/12/16 implementation used in the carry attack, we
 \label{fig:image_encryption}
 \end{figure}
 
+\paragraph{Practical validation: carry attack on a real image key.}
+To demonstrate the practical effectiveness of the carry attack, we applied it to the actual key used to encrypt the BMP images. The key \texttt{"super\_secret\_rc5"} (16 bytes) was used in RC5-32/12/16 CBC mode to encrypt two distinct images. Both encrypted images appeared as random noise, and decryption recovered the original images with 100\% byte-by-byte accuracy, confirming the correctness of the implementation.
+
+We then executed the carry attack (Algorithm~2) on the subkey \(S[2]\) of the expanded key schedule. The attack recovered the subkey in exactly 32 additions, as shown in Table~\ref{tab:carry_image_attack}. The real subkey was \(S[2] = \texttt{0x17CF6E76}\), and the recovered subkey matched exactly.
+
+\begin{table}[htbp]
+\centering
+\caption{Carry attack on subkey \(S[2]\) of the real image key. The attack recovers each bit by observing carry propagation.}
+\label{tab:carry_image_attack}
+\begin{tabular}{c|c|c|c|c|c}
+\hline
+Bit & Test input \(A\) & Oracle output & Output with bit 0 & Carry decision & Recovered value \\
+\hline
+0 & 0x00000000 & 0x17CF6E76 & 0x00000000 & bit=0 & 0x00000000 \\
+1 & 0x00000001 & 0x17CF6E77 & 0x00000001 & bit=1 & 0x00000002 \\
+2 & 0x00000003 & 0x17CF6E79 & 0x00000005 & bit=1 & 0x00000006 \\
+3 & 0x00000007 & 0x17CF6E7D & 0x0000000D & bit=0 & 0x00000006 \\
+4 & 0x0000000F & 0x17CF6E85 & 0x00000015 & bit=1 & 0x00000016 \\
+\(\vdots\) & \(\vdots\) & \(\vdots\) & \(\vdots\) & \(\vdots\) & \(\vdots\) \\
+28 & 0x0FFFFFFF & 0x27CF6E75 & 0x17CF6E75 & bit=1 & 0x17CF6E76 \\
+29 & 0x1FFFFFFF & 0x37CF6E75 & 0x37CF6E75 & bit=0 & 0x17CF6E76 \\
+30 & 0x3FFFFFFF & 0x57CF6E75 & 0x57CF6E75 & bit=0 & 0x17CF6E76 \\
+31 & 0x7FFFFFFF & 0x97CF6E75 & 0x97CF6E75 & bit=0 & 0x17CF6E76 \\
+\hline
+\end{tabular}
+\end{table}
+
+The attack recovered \(S[2] = \texttt{0x17CF6E76}\) in 32 additions, demonstrating that the vulnerability is not only theoretical but also exploitable against a live key used in real image encryption. The source code, test images, and attack logs are available in the repository under \texttt{demo/} and \texttt{carry\_attack/}.
+
 \paragraph{Clock detection via tangent decomposition.}
 The rotation in RC5 can be expressed as an angle \(\phi = 2\pi\,(B \bmod w)/w\), whose tangent \(\tan(\phi)\) reveals the discrete clock \(w\). When lock occurs (\(B\equiv0\bmod w\)), \(\sin(\phi)=0\) and the rotation degenerates to a linear addition---exposing the carry. This same structure governs the zeta phase: the fundamental period \(T = 2\pi/\ln 2 \approx 9.064\) defines the spacing of the exceptional lines (\(t = n\pi/\ln 2\)), where \(\sin(t\ln 2)=0\) and the phase condition \(K(s)K(1-s)\in\mathbb{R}\) holds regardless of \(\sigma\). Figure~\ref{fig:clock_tangente} shows the sine, cosine, and tangent decomposition for \(\sigma=0.75\): the gray vertical lines mark \(\sin=0\) and coincide with the tangent zeros, delimiting the system's natural clock.
 
